@@ -1,12 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/index.js": {
-      "includeFiles": "src/**"
-    },
-    "api/health.js": {
-      "includeFiles": "src/**"
-    }
+    "api/index.js": { "includeFiles": "src/**" },
+    "api/health.js": { "includeFiles": "src/**" },
+    "api/diag.js":   { "includeFiles": "src/**" }
   },
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/api" }
