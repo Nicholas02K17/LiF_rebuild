@@ -1,0 +1,74 @@
+<%
+  /* The side panel.
+
+     Shared Foundation v1.4 section 7 — a minimizable, hideable sidebar beside
+     the central feature view. A feature stays in navigation even when its
+     summary card is hidden; only an administrator disabling the feature removes
+     it. Restore Default Layout is always available.
+
+     Locals: model. */
+%>
+<aside class="rail" id="rail" aria-label="Playground navigation and settings">
+
+  <nav class="rail__section" aria-label="Go to">
+    <p class="rail__label">Go to</p>
+    <div class="rail__links">
+      <% model.navigation.forEach(function (item) { %>
+        <% if (item.comingSoon) { %>
+          <span class="rail__link faint" data-aspect="<%= item.aspectKey %>" title="Being prepared — it will open here when it is ready.">
+            <span class="rail__bullet" aria-hidden="true"></span>
+            <span><%= item.label %></span>
+          </span>
+        <% } else { %>
+          <a class="rail__link" href="<%= item.href %>" data-aspect="<%= item.aspectKey %>"
+             <% if (requestPath === item.href) { %>aria-current="page"<% } %>>
+            <span class="rail__bullet" aria-hidden="true"></span>
+            <span><%= item.label %></span>
+          </a>
+        <% } %>
+      <% }); %>
+    </div>
+  </nav>
+
+  <div class="rail__section">
+    <p class="rail__label">Colour</p>
+    <%- include('aspect-wheel', { aspects: model.aspects }) %>
+  </div>
+
+  <div class="rail__section">
+    <p class="rail__label">Your layout</p>
+
+    <% if (model.cards.hidden.length) { %>
+      <div class="cards-hidden">
+        <span class="rail__note">Hidden cards</span>
+        <% model.cards.hidden.forEach(function (card) { %>
+          <form method="post" action="/my-playground/layout" data-card-show>
+            <input type="hidden" name="showCard" value="<%= card.featureKey %>">
+            <input type="hidden" name="returnTo" value="/">
+            <button type="submit" class="chip"><%= card.title %> · <%= model.cards.showLabel.toLowerCase() %></button>
+          </form>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <form method="post" action="/my-playground/layout/restore">
+      <button type="submit" class="btn btn--quiet"><%= model.cards.restoreLabel %></button>
+    </form>
+
+    <p class="rail__note">Hiding a card changes this page only. Everything stays reachable from <em>Go to</em>.</p>
+  </div>
+
+  <div class="rail__section">
+    <p class="rail__label">Movement</p>
+    <%
+      /* Brand Reference v1.1 section 5 — respect reduced-motion settings. The
+         operating system preference is honoured automatically; this gives the
+         Member their own switch as well, and it is remembered. */
+    %>
+    <label class="motion-toggle">
+      <input type="checkbox" data-motion-toggle>
+      <span>Stillness — hold the Playground still</span>
+    </label>
+    <p class="rail__note">Your device setting is already respected. This is here for stiller than that.</p>
+  </div>
+</aside>

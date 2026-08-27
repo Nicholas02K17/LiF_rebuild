@@ -1,0 +1,22 @@
+{
+  "name": "lif-playground-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LiF Playground \u2014 EJS presentation layer (Hub / My Playground). Built to be lifted into the authoritative LiF Node.js + Express application.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "scan:prohibited": "node scripts/scan-prohibited-patterns.js",
+    "check": "npm run scan:prohibited && npm test"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2"
+  }
+}

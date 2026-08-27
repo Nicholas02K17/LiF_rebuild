@@ -1,0 +1,64 @@
+<%
+  /* The Aspect wheel — Member theme selection, drawn as the Seed of Life.
+
+     Brand Reference v1.1 section 4: at launch a Member may optionally choose
+     one of the seven Aspect palettes as their interface theme, with preview,
+     save and reset, and the preference follows them across devices. Accents
+     reach navigation highlights, buttons, card borders and selected states —
+     never logo or Aspect colours, and never functional status colours.
+
+     LiF administrators may turn selection off; when they do, the control is not
+     rendered at all and any saved choice is left untouched.
+
+     ACCESSIBILITY
+     The seven circles are the pointer affordance and are presentational. The
+     real control is the group of submit buttons below them, which is visually
+     hidden until something inside it takes focus and then becomes visible in
+     place. A keyboard user is never sent to a control they cannot see, and the
+     whole thing submits as an ordinary form without JavaScript.
+
+     Locals: aspects. */
+%>
+<% if (aspects.themesEnabled) { %>
+  <form class="aspect-wheel" method="post" action="/my-playground/theme"
+        data-aspect-wheel
+        <% if (aspects.themeKey) { %>data-chosen="<%= aspects.themeKey %>"<% } %>>
+    <input type="hidden" name="returnTo" value="/">
+
+    <svg class="aspect-wheel__svg" viewBox="0 0 200 200" fill="none" aria-hidden="true" focusable="false">
+      <% seed.forEach(function (s) { %>
+        <circle class="aspect-wheel__seat"
+                cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>"
+                style="--seat-colour: <%= s.colour %>;"
+                data-aspect-choice="<%= s.aspectKey %>"
+                data-aspect-label="<%= s.aspectLabel %>"
+                data-pressed="<%= aspects.themeKey === s.aspectKey %>" />
+      <% }); %>
+    </svg>
+
+    <fieldset class="aspect-wheel__choices">
+      <legend class="visually-hidden">Colour your Playground by Aspect</legend>
+      <% aspects.all.forEach(function (a) { %>
+        <button type="submit" name="aspectKey" value="<%= a.key %>"
+                class="chip aspect-wheel__choice"
+                data-aspect="<%= a.key %>"
+                data-aspect-choice="<%= a.key %>"
+                data-aspect-label="<%= a.label %>"
+                aria-pressed="<%= aspects.themeKey === a.key %>"><%= a.label %></button>
+      <% }); %>
+      <button type="submit" name="aspectKey" value="" class="chip aspect-wheel__choice">Standard LiF</button>
+    </fieldset>
+
+    <p class="aspect-wheel__caption" data-aspect-caption>
+      <% if (aspects.themeLabel) { %>
+        <span class="aspect-wheel__chosen"><%= aspects.themeLabel %></span> is colouring your Playground.
+      <% } else { %>
+        <%= aspects.filterCaption %>
+      <% } %>
+    </p>
+
+    <% if (aspects.themeKey) { %>
+      <button type="submit" name="aspectKey" value="" class="btn btn--quiet">Reset to standard</button>
+    <% } %>
+  </form>
+<% } %>

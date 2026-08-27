@@ -1,0 +1,635 @@
+/* ============================================================================
+   components.css — shared LiF interface elements.
+   ========================================================================== */
+
+/* =========================================================== the seed mark ==
+   The Seed of Life, drawn as seven circles in the seven Aspect colours. It is
+   the logo, the pathway progress ring, the theme picker, the loading state and
+   the confirmation, depending on which modifier it carries — one shape doing
+   the work that would otherwise need five unrelated widgets.                 */
+
+.seed-mark {
+  display: block;
+  overflow: visible;
+  transform-origin: center;
+}
+
+.seed-mark__ring {
+  fill: none;
+  stroke: var(--seat-colour, var(--ink-faint));
+  stroke-width: var(--seed-stroke, 3);
+  vector-effect: non-scaling-stroke;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.seed-mark__disc {
+  fill: var(--seat-colour, var(--ink-faint));
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: opacity var(--dur-calm) var(--ease-out);
+}
+
+/* --- brand size: the mark in the top bar ---------------------------------- */
+.seed-mark--brand { width: 40px; height: 40px; --seed-stroke: 2.4; }
+
+.seed-mark--brand .seed-mark__ring {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: lif-draw calc(var(--dur-bloom) * var(--motion-scale)) var(--ease-out) both;
+  animation-delay: calc((var(--seat, 0) * 60ms + 120ms) * var(--motion-scale));
+}
+
+/* The mark answers the pointer by breathing once, from the centre outward. */
+.brand:hover .seed-mark--brand .seed-mark__ring,
+.brand:focus-visible .seed-mark--brand .seed-mark__ring {
+  animation: lif-breathe calc(1.6s * var(--motion-scale)) var(--ease-in-out) 1;
+  animation-delay: calc(var(--seat, 0) * 46ms * var(--motion-scale));
+}
+
+/* --- the overture --------------------------------------------------------
+   Once per session, the Seed germinates across the whole viewport and then
+   contracts into the top bar. It is the only large motion in the Playground,
+   it happens before there is anything to read, and it never repeats on a
+   refresh within the session.                                                */
+
+.overture {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  animation: lif-fade calc(var(--dur-quick) * var(--motion-scale)) ease both;
+}
+
+.overture[hidden] { display: none; }
+
+.overture__mark { width: min(46vmin, 340px); height: min(46vmin, 340px); --seed-stroke: 2; }
+
+.overture__mark .seed-mark__ring {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: lif-draw calc(820ms * var(--motion-scale)) var(--ease-out) both;
+  animation-delay: calc((120ms + var(--seat, 0) * 110ms) * var(--motion-scale));
+}
+
+.overture__mark .seed-mark__disc {
+  animation: lif-petal-tint calc(var(--dur-settle) * var(--motion-scale)) var(--ease-bloom) both;
+  animation-delay: calc((420ms + var(--seat, 0) * 110ms) * var(--motion-scale));
+}
+
+/* The rings finish a beat after their tint, so the last thing the eye settles
+   on is the geometry rather than the colour. */
+.overture__mark .seed-mark__rings { mix-blend-mode: multiply; }
+
+.overture__word {
+  position: absolute;
+  bottom: 18vh;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+  animation: lif-rise calc(var(--dur-settle) * var(--motion-scale)) var(--ease-out) both;
+  animation-delay: calc(1250ms * var(--motion-scale));
+}
+
+/* The dismissal: the whole thing contracts toward the brand mark and fades. */
+.overture.is-closing {
+  animation: overture-close calc(var(--dur-bloom) * var(--motion-scale)) var(--ease-in-out) forwards;
+}
+
+@keyframes overture-close {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.86) translateY(-6vh); }
+}
+
+/* Anyone can leave early — keyboard, pointer or scroll. */
+.overture__skip {
+  position: absolute;
+  bottom: var(--sp-6);
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  opacity: 0;
+  animation: lif-fade calc(var(--dur-calm) * var(--motion-scale)) ease both;
+  animation-delay: calc(700ms * var(--motion-scale));
+}
+.overture__skip:hover { color: var(--ink); border-color: var(--accent); }
+
+/* ================================================================ top bar == */
+
+.topbar {
+  position: sticky;
+  max-width: 100%;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  background: color-mix(in srgb, var(--paper) 84%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-calm) ease, background var(--dur-calm) ease;
+}
+
+/* The bar only draws its line once you have actually left the top. */
+.topbar[data-scrolled='true'] {
+  border-bottom-color: var(--line);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.brand__name {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.brand__sub {
+  font-size: var(--fs-xs);
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+}
+
+.topbar__nav {
+  display: flex;
+  gap: var(--sp-1);
+  margin-inline-start: auto;
+  /* Without min-width:0 a flex item refuses to shrink below its content, and
+     the whole page grows sideways on a narrow screen instead of the bar
+     scrolling. */
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.topbar__nav::-webkit-scrollbar { display: none; }
+
+.nav-item {
+  position: relative;
+  padding: var(--sp-2) var(--sp-4);
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-pill);
+  color: var(--ink-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur-quick) ease, background var(--dur-quick) ease;
+}
+
+.nav-item:hover { color: var(--ink); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+
+/* The active marker is a filled circle that slides, not a rectangle that
+   jumps — the same circle the rest of the Playground is built from. */
+.nav-item[aria-current='page'] { color: var(--accent); }
+.nav-item[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 5px; height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: lif-petal-open calc(var(--dur-calm) * var(--motion-scale)) var(--ease-bloom) both;
+}
+
+.nav-item[data-coming-soon='true'] {
+  color: var(--ink-faint);
+  cursor: default;
+}
+.nav-item[data-coming-soon='true']::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  display: inline-block;
+  margin-inline-end: 6px;
+  vertical-align: 1px;
+}
+
+.topbar__actions { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }
+
+@media (max-width: 720px) {
+  .topbar { gap: var(--sp-3); padding-inline: var(--sp-4); }
+  .brand__sub { display: none; }
+  /* The bar keeps every destination and simply scrolls. Nothing is removed on
+     a small screen, so no feature becomes unreachable. */
+  .topbar__nav { mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 18px), transparent 100%); }
+}
+
+/* ================================================================ buttons == */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--dur-quick) var(--ease-out),
+              border-color var(--dur-quick) ease,
+              background var(--dur-quick) ease,
+              box-shadow var(--dur-quick) ease;
+}
+.btn:hover { transform: translateY(-1px); border-color: var(--accent); box-shadow: var(--shadow-sm); }
+.btn:active { transform: none; }
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+.btn--primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+.btn--quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-muted);
+  padding-inline: var(--sp-3);
+}
+.btn--quiet:hover { color: var(--ink); background: color-mix(in srgb, var(--accent) 8%, transparent); box-shadow: none; }
+
+.btn--icon {
+  padding: var(--sp-2);
+  width: 38px; height: 38px;
+  justify-content: center;
+  border-radius: 50%;
+}
+.btn--icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+/* ================================================================== chips == */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: transparent;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all var(--dur-quick) ease;
+}
+.chip:hover { border-color: var(--accent); color: var(--ink); }
+.chip[aria-pressed='true'] {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--accent-strong);
+}
+
+.chip--new {
+  cursor: default;
+  flex-shrink: 0;
+  white-space: nowrap;
+  align-self: flex-start;
+  background: var(--aspect-100, var(--accent-soft));
+  border-color: transparent;
+  color: color-mix(in srgb, var(--aspect-600, var(--accent)) 82%, var(--ink));
+}
+.chip--new::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--aspect-600, var(--accent));
+  animation: lif-breathe calc(3.4s * var(--motion-scale)) var(--ease-in-out) infinite;
+}
+
+/* ========================================================== scope switch ==
+   For me / Whole Playground. It must never look like a permission or privacy
+   control (Dashboard Unified v1.2 section 0.4), so: no lock, no shield, no
+   red, no on/off affordance. Two words and a travelling circle.             */
+
+.scope {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.scope__switch {
+  position: relative;
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--line) 55%, transparent);
+  border: 1px solid var(--line);
+}
+
+.scope__thumb {
+  position: absolute;
+  top: 3px; bottom: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--paper-raised);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur-calm) var(--ease-bloom), width var(--dur-calm) var(--ease-bloom);
+  pointer-events: none;
+}
+
+.scope__option {
+  position: relative;
+  z-index: 1;
+  padding: var(--sp-2) var(--sp-4);
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--dur-quick) ease;
+  text-decoration: none;
+}
+.scope__option[aria-pressed='true'] { color: var(--accent-strong); }
+
+.scope__explain {
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+  max-width: 46ch;
+}
+
+/* ================================================================== cards == */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  border-radius: var(--radius-lg);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform var(--dur-calm) var(--ease-out),
+              box-shadow var(--dur-calm) var(--ease-out),
+              border-color var(--dur-calm) ease;
+}
+
+/* A card is an invitation and a doorway, so hovering opens it a little rather
+   than highlighting it. The Aspect colour arrives at the top edge as a line
+   being drawn, and a Seed watermark turns slowly inside. */
+.card::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 3px;
+  background: var(--aspect-600, var(--accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-settle) var(--ease-out);
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--aspect-600, var(--accent)) 30%, var(--line));
+}
+.card:hover::before,
+.card:focus-within::before { transform: scaleX(1); }
+
+.card__watermark {
+  position: absolute;
+  right: -46px;
+  bottom: -52px;
+  width: 190px;
+  height: 190px;
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: center;
+  transition: opacity var(--dur-settle) var(--ease-out), transform var(--dur-bloom) var(--ease-out);
+}
+.card:hover .card__watermark,
+.card:focus-within .card__watermark {
+  opacity: 0.12;
+  transform: rotate(24deg) scale(1.08);
+}
+.card__watermark circle {
+  fill: none;
+  stroke: var(--aspect-600, var(--accent));
+  stroke-width: 1.4;
+}
+
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.card__title {
+  font-size: var(--fs-lg);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.card__title a { color: inherit; text-decoration: none; }
+.card__title a:hover { text-decoration: underline; }
+
+.card__orientation {
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+}
+
+.card__lines { display: flex; flex-direction: column; gap: 2px; margin-top: var(--sp-2); }
+
+/* A line is a labelled count and a doorway to that exact category — never a
+   bare number (Dashboard Unified v1.2 section 0.6). */
+.card__line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-2);
+  margin-inline: calc(var(--sp-2) * -1);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--dur-quick) ease, padding-inline-start var(--dur-quick) var(--ease-out);
+}
+.card__line:hover {
+  background: var(--aspect-100, var(--accent-soft));
+  padding-inline-start: var(--sp-4);
+}
+
+.card__count {
+  font-family: var(--font-display);
+  font-size: 1.32rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--aspect-600, var(--accent));
+  min-width: 2.2ch;
+}
+
+.card__line-label { font-size: var(--fs-sm); color: var(--ink-muted); }
+.card__line:hover .card__line-label { color: var(--ink); }
+
+.card__foot {
+  margin-top: auto;
+  padding-top: var(--sp-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.card__more {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--aspect-600, var(--accent));
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.card__more svg { width: 15px; height: 15px; transition: transform var(--dur-quick) var(--ease-out); }
+.card__more:hover svg { transform: translateX(3px); }
+
+.card__manage {
+  opacity: 0;
+  transition: opacity var(--dur-quick) ease;
+}
+.card:hover .card__manage,
+.card:focus-within .card__manage { opacity: 1; }
+/* Never hide the control from a keyboard or touch user behind hover. */
+@media (hover: none) { .card__manage { opacity: 1; } }
+
+/* ================================================================= states ==
+   Every state says what happened, whether the Member's work is safe, what to
+   do next, and how to return (Dashboard Unified v1.2 section 0.11).         */
+
+.state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+}
+.state__title { color: var(--ink); font-weight: 600; }
+
+.state--empty .state__mark { opacity: 0.42; }
+
+/* Loading holds the card's shape so nothing jumps, and never shows a zero that
+   could be mistaken for a real count. */
+.state--loading .skeleton {
+  height: 13px;
+  border-radius: var(--radius-pill);
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--line) 60%, transparent) 0%,
+      color-mix(in srgb, var(--line) 22%, transparent) 42%,
+      color-mix(in srgb, var(--line) 60%, transparent) 84%);
+  background-size: 220% 100%;
+  animation: lif-shimmer calc(2.1s * var(--motion-scale)) linear infinite;
+}
+.state--loading .skeleton + .skeleton { margin-top: var(--sp-3); }
+.state--loading .skeleton:nth-child(2) { width: 72%; }
+.state--loading .skeleton:nth-child(3) { width: 54%; }
+
+.state--restricted { color: var(--ink-muted); }
+.state--restricted .state__title { color: var(--ink); }
+
+.state--error {
+  border-inline-start: 3px solid var(--danger);
+  padding-inline-start: var(--sp-4);
+}
+.state--error .state__title { color: var(--danger); }
+
+.state--not-yet .state__title { color: var(--ink-muted); }
+
+/* ====================================================== saved indicator ==
+   Autosave confirmation. A ring opens and dissolves beside the word. Calm,
+   once, no toast, no exclamation mark (section 0.9).                        */
+
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--nature-nurture-600);
+  opacity: 0;
+  transition: opacity var(--dur-calm) ease;
+}
+.saved.is-visible { opacity: 1; }
+
+.saved__ring {
+  position: relative;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 1.6px solid currentColor;
+}
+.saved.is-visible .saved__ring::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.6px solid currentColor;
+  animation: lif-ping calc(var(--dur-bloom) * var(--motion-scale)) var(--ease-out) both;
+}
+
+/* ================================================================ footer == */
+
+.page-footer {
+  padding: var(--sp-6) var(--sp-5) var(--sp-7);
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  border-top: 1px solid var(--line);
+  margin-top: var(--sp-8);
+}
+
+/* ============================================================ review flag ==
+   Development-only banner for the non-ideal-state review flags. */
+
+.review-flag {
+  position: fixed;
+  left: 50%;
+  bottom: var(--sp-4);
+  transform: translateX(-50%);
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-md);
+  animation: lif-rise calc(var(--dur-calm) * var(--motion-scale)) var(--ease-out) both;
+}
+.review-flag a { color: var(--community-inclusion-100); }

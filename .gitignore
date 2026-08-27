@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+extracted/
+txt/
+docx2txt.py
+LiF_Student_Handoff_v5_1.zip

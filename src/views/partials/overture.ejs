@@ -1,0 +1,16 @@
+<%
+  /* The overture.
+     Once per browser session, the Seed of Life draws itself across the
+     viewport, opens its seven petals, says Welcome Home, and contracts into the
+     brand mark. It is removed by src/public/js/overture.js as soon as it is
+     done, on any key press, on a pointer press, or on a scroll.
+
+     It is rendered hidden and only revealed by JavaScript, so a Member without
+     JavaScript — or with stillness on — never sees a blank screen waiting to be
+     dismissed. */
+%>
+<div class="overture" id="overture" hidden data-overture>
+  <%- include('seed-mark', { className: 'overture__mark', showDiscs: true, ariaLabel: null }) %>
+  <p class="overture__word" aria-hidden="true">Welcome Home</p>
+  <button type="button" class="overture__skip" data-overture-skip>Go straight in</button>
+</div>

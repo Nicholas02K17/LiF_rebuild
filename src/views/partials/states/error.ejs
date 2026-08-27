@@ -1,0 +1,13 @@
+<%
+  /* Calm, specific, recoverable. It says what happened, that nothing entered is
+     lost, and offers the next action (Dashboard Unified v1.2 section 0.10). */
+%>
+<div class="state state--error" role="alert">
+  <p class="state__title"><%= states.error %></p>
+  <p><%= card.statusReason %></p>
+  <p>
+    <button type="button" class="btn btn--quiet" data-retry-card="<%= card.featureKey %>">
+      <%= states.errorRetry %>
+    </button>
+  </p>
+</div>

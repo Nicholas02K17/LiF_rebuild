@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>" data-motion="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= page.title %></title>
+  <meta name="description" content="My Playground — your personal doorway into the Love is Foundation Playground.">
+  <meta name="color-scheme" content="light">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+  <link rel="stylesheet" href="/assets/css/foundations.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/features/hub.css">
+
+  <link rel="icon" href="/assets/images/lif-seed-logo.png" type="image/png">
+
+  <%
+    /* The Aspect theme and the stillness preference are applied before first
+       paint, so a Member who has chosen either never sees the standard theme
+       flash first. This is the only inline script in the Playground, it takes
+       no input from any record, and it builds no markup. */
+  %>
+  <script>
+    (function () {
+      try {
+        var root = document.documentElement;
+        var theme = window.localStorage.getItem('lif.aspectTheme');
+        if (theme) { root.setAttribute('data-aspect-theme', theme); }
+        var motion = window.localStorage.getItem('lif.motion');
+        if (motion === 'still' || motion === 'full') { root.setAttribute('data-motion', motion); }
+
+        /* If the Member arrived here by pressing the scope switch, open this
+           page out of the exact control they pressed. Consumed once. */
+        var lens = window.sessionStorage.getItem('lif.lens');
+        if (lens) {
+          window.sessionStorage.removeItem('lif.lens');
+          var at = lens.split(',');
+          root.style.setProperty('--lens-x', at[0] + '%');
+          root.style.setProperty('--lens-y', at[1] + '%');
+          root.setAttribute('data-lens', '');
+        }
+      } catch (e) { /* storage unavailable — the standard theme is correct */ }
+    })();
+  </script>
+</head>
+<body>
+
+  <a class="skip-link" href="#stage">Skip to My Playground</a>
+
+  <%- include('../partials/ambient') %>
+
+  <div class="shell">
+    <%- body %>
+  </div>
+
+  <script type="module" src="/assets/js/hub.page.js"></script>
+</body>
+</html>

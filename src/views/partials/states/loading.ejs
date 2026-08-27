@@ -1,0 +1,11 @@
+<%
+  /* Calm progress. The card's shape is held so nothing jumps when the real
+     content arrives, and no zero is shown that could be mistaken for a real
+     count (Dashboard Unified v1.2 section 0.11). */
+%>
+<div class="state state--loading" role="status" aria-live="polite">
+  <span class="visually-hidden"><%= states.loading %></span>
+  <span class="skeleton" aria-hidden="true"></span>
+  <span class="skeleton" aria-hidden="true"></span>
+  <span class="skeleton" aria-hidden="true"></span>
+</div>

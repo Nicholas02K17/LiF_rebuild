@@ -1,0 +1,27 @@
+<header class="topbar" data-topbar>
+  <a class="brand" href="/">
+    <%- include('seed-mark', { className: 'seed-mark--brand', ariaLabel: 'Love is Foundation' }) %>
+    <span>
+      <span class="brand__name">My Playground</span>
+      <span class="brand__sub">Love is Foundation</span>
+    </span>
+  </a>
+
+  <nav class="topbar__nav" aria-label="Playground">
+    <% navigation.forEach(function (item) { %>
+      <% if (item.comingSoon) { %>
+        <span class="nav-item" data-coming-soon="true" title="Being prepared — it will open here when it is ready."><%= item.label %></span>
+      <% } else { %>
+        <a class="nav-item" href="<%= item.href %>"
+           <% if (requestPath === item.href) { %>aria-current="page"<% } %>><%= item.label %></a>
+      <% } %>
+    <% }); %>
+  </nav>
+
+  <div class="topbar__actions">
+    <button type="button" class="btn btn--icon" data-rail-toggle
+            aria-label="Minimize the side panel" aria-expanded="true" aria-controls="rail">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>

@@ -1,0 +1,68 @@
+<%
+  /* Welcome Home Pathway progress, drawn as the Seed of Life.
+
+     Centre  = the Member.
+     Seats 1-5 = the five pathway components.
+     Seat 6    = the Welcome Home seal, closed only when the four core
+                 components are complete.
+
+     LIF-REVIEW-001 — a reversible presentation mapping; see docs/LIF-REVIEW.md.
+     Each seat is also a real link, so the medallion is a way in and not only a
+     picture of progress.
+
+     Locals: pathway, identity. */
+  var seatColour = function (seat) {
+    var s = seed.find(function (item) { return item.seat === seat; });
+    return s ? s.colour : 'var(--accent)';
+  };
+  var seatTint = function (seat) {
+    var s = seed.find(function (item) { return item.seat === seat; });
+    return s ? s.tint : 'var(--accent-soft)';
+  };
+%>
+<div class="medallion" data-complete="<%= pathway.allCoreComplete %>">
+  <svg class="medallion__svg" viewBox="0 0 200 200" fill="none"
+       role="img"
+       aria-label="Your Welcome Home Pathway: <%= pathway.completedCore %> of <%= pathway.totalCore %> steps complete.">
+
+    <% pathway.components.forEach(function (component) { %>
+      <g style="--seat: <%= component.seat %>; --seat-colour: <%= seatColour(component.seat) %>;">
+        <circle class="medallion__seat <%= component.complete ? 'medallion__seat--done' : '' %>"
+                cx="<%= component.geometry.x.toFixed(2) %>"
+                cy="<%= component.geometry.y.toFixed(2) %>"
+                r="<%= component.geometry.r %>"
+                pathLength="1" />
+        <circle class="medallion__fill"
+                cx="<%= component.geometry.x.toFixed(2) %>"
+                cy="<%= component.geometry.y.toFixed(2) %>"
+                r="<%= component.geometry.r %>" />
+        <a href="<%= component.href %>" aria-label="<%= component.title %><%= component.complete ? ' — complete' : '' %>">
+          <circle class="medallion__hit"
+                  cx="<%= component.geometry.x.toFixed(2) %>"
+                  cy="<%= component.geometry.y.toFixed(2) %>"
+                  r="20" />
+        </a>
+      </g>
+    <% }); %>
+
+    <g style="--seat: <%= pathway.seal.seat %>; --seat-colour: var(--accent);">
+      <circle class="medallion__seal <%= pathway.seal.closed ? 'medallion__seal--closed' : '' %>"
+              cx="<%= pathway.seal.geometry.x.toFixed(2) %>"
+              cy="<%= pathway.seal.geometry.y.toFixed(2) %>"
+              r="<%= pathway.seal.geometry.r %>"
+              pathLength="1" />
+    </g>
+
+    <circle class="medallion__centre" cx="<%= pathway.centre.x %>" cy="<%= pathway.centre.y %>" r="26" />
+    <text class="medallion__initial" x="<%= pathway.centre.x %>" y="<%= pathway.centre.y %>"><%= identity.initial %></text>
+
+  </svg>
+
+  <p class="medallion__caption">
+    <% if (pathway.allCoreComplete) { %>
+      You are home
+    <% } else { %>
+      <%= pathway.completedCore %> of <%= pathway.totalCore %> · in any order
+    <% } %>
+  </p>
+</div>

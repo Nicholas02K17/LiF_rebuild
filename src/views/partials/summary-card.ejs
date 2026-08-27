@@ -1,0 +1,98 @@
+<%
+  /* A summary card.
+
+     Dashboard Unified v1.2 section 0.6 — a relational summary and a doorway,
+     not a KPI tile. Every count carries a plain-language label. The card title
+     opens the whole feature; each line opens the same feature focused on that
+     category. Quick actions are limited to the approved ones.
+
+     Locals: card, cards (labels), index, states. */
+%>
+<li class="card lif-enter"
+    style="--i: <%= index %>;"
+    data-aspect="<%= card.aspectKey %>"
+    data-card="<%= card.featureKey %>"
+    data-status="<%= card.status %>">
+
+  <svg class="card__watermark" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+    <% seed.forEach(function (s) { %>
+      <circle cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" />
+    <% }); %>
+  </svg>
+
+  <div class="card__head">
+    <div>
+      <h3 class="card__title">
+        <% if (card.href) { %>
+          <a href="<%= card.href %>"><%= card.title %></a>
+        <% } else { %>
+          <%= card.title %>
+        <% } %>
+      </h3>
+      <% if (card.orientation) { %>
+        <p class="card__orientation"><%= card.orientation %></p>
+      <% } %>
+    </div>
+
+    <% if (card.hasNew) { %>
+      <span class="chip chip--new">
+        <%= card.newCount %> new
+        <span class="visually-hidden"><%= cards.newLabel.toLowerCase() %></span>
+      </span>
+    <% } %>
+  </div>
+
+  <% if (card.status === 'ready') { %>
+    <ul class="card__lines">
+      <% card.lines.forEach(function (line) { %>
+        <li>
+          <a class="card__line" href="<%= line.href %>">
+            <span class="card__count"><%= line.count %></span>
+            <span class="card__line-label"><%= line.label %></span>
+          </a>
+        </li>
+      <% }); %>
+    </ul>
+
+  <% } else if (card.status === 'loading') { %>
+    <%- include('states/loading', { states: states }) %>
+
+  <% } else if (card.status === 'empty') { %>
+    <%- include('states/empty', { card: card, states: states }) %>
+
+  <% } else if (card.status === 'restricted') { %>
+    <%- include('states/restricted', { card: card, states: states }) %>
+
+  <% } else if (card.status === 'not-yet-available') { %>
+    <%- include('states/not-yet', { card: card, states: states }) %>
+
+  <% } else { %>
+    <%- include('states/error', { card: card, states: states }) %>
+  <% } %>
+
+  <div class="card__foot">
+    <% if (card.href && card.status === 'ready') { %>
+      <a class="card__more" href="<%= card.href %>">
+        <%= cards.viewAllLabel %>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M5 12h13M13 6l6 6-6 6"/>
+        </svg>
+      </a>
+    <% } else { %>
+      <span></span>
+    <% } %>
+
+    <%
+      /* Hide is a real form post so it works without JavaScript. Hiding a card
+         never removes the feature from navigation (Shared Foundation v1.4
+         section 7) — the rail keeps it. */
+    %>
+    <form class="card__manage" method="post" action="/my-playground/layout" data-card-hide>
+      <input type="hidden" name="hideCard" value="<%= card.featureKey %>">
+      <input type="hidden" name="returnTo" value="/">
+      <button type="submit" class="btn btn--quiet" aria-label="<%= cards.hideLabel %>: <%= card.title %>">
+        <%= cards.hideLabel %>
+      </button>
+    </form>
+  </div>
+</li>

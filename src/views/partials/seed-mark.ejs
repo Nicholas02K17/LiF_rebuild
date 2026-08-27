@@ -1,0 +1,36 @@
+<%
+  /* The LiF Seed of Life, as live SVG.
+     The raster logo lives at /assets/images/lif-seed-logo.png and is the
+     authoritative artwork; this is the same seven circles rebuilt as vectors so
+     each one can be drawn, coloured and animated independently. The colours are
+     the same sampled Aspect values, referenced through tokens.
+
+     Locals: className, ariaLabel (omit for decorative), showDiscs. */
+  var markClass = typeof className !== 'undefined' ? className : 'seed-mark';
+  var label = typeof ariaLabel !== 'undefined' ? ariaLabel : null;
+  var discs = typeof showDiscs !== 'undefined' ? showDiscs : false;
+%>
+<svg class="seed-mark <%= markClass %>" viewBox="0 0 200 200" fill="none"
+     <% if (label) { %>role="img" aria-label="<%= label %>"<% } else { %>aria-hidden="true" focusable="false"<% } %>>
+  <%
+    /* Two passes on purpose: every tint is laid down first, then every ring on
+       top. Drawing them group by group would let a later petal's tint cover an
+       earlier petal's ring, and the lattice — which is the whole point of the
+       Seed of Life — would disappear behind the colour. */
+  %>
+  <% if (discs) { %>
+    <g class="seed-mark__tints">
+      <% seed.forEach(function (s) { %>
+        <circle class="seed-mark__disc" cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>"
+                style="--seat: <%= s.seat %>; --seat-colour: <%= s.colour %>;" />
+      <% }); %>
+    </g>
+  <% } %>
+
+  <g class="seed-mark__rings">
+    <% seed.forEach(function (s) { %>
+      <circle class="seed-mark__ring" cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" pathLength="1"
+              style="--seat: <%= s.seat %>; --seat-colour: <%= s.colour %>;" />
+    <% }); %>
+  </g>
+</svg>

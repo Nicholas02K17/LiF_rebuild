@@ -1,0 +1,21 @@
+<%
+  /* Empty is possibility without pressure, and it never communicates personal
+     failure (Dashboard Unified v1.2 sections 0.6 and 0.10). */
+%>
+<div class="state state--empty">
+  <svg class="seed-mark state__mark" viewBox="0 0 200 200" fill="none" aria-hidden="true" width="46" height="46">
+    <% seed.forEach(function (s) { %>
+      <circle cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" stroke="var(--aspect-600, var(--ink-faint))" stroke-width="3" />
+    <% }); %>
+  </svg>
+  <p class="state__title"><%= states.emptyNothingYet %></p>
+  <% if (card.href) { %>
+    <p>When something here belongs to you, it will appear on this card.</p>
+    <a class="card__more" href="<%= card.href %>">
+      Explore <%= card.title %>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M5 12h13M13 6l6 6-6 6"/>
+      </svg>
+    </a>
+  <% } %>
+</div>

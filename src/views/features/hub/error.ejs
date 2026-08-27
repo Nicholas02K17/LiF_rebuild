@@ -1,0 +1,24 @@
+<%- include('../../partials/topbar', { navigation: [] }) %>
+
+<main class="stage" id="stage" tabindex="-1">
+  <div class="prototype" data-aspect="whole-human-potential">
+
+    <svg class="prototype__mark" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+      <% seed.forEach(function (s) { %>
+        <circle cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" />
+      <% }); %>
+    </svg>
+
+    <h1 class="lif-enter"><%= copy.heading %></h1>
+    <p class="lede lif-enter" style="--i: 1;"><%= copy.body %></p>
+
+    <a class="btn btn--primary lif-enter" style="--i: 2;" href="<%= copy.action.href %>"><%= copy.action.label %></a>
+
+    <% if (showDetail && detail) { %>
+      <details class="prototype__owner lif-enter" style="--i: 3;">
+        <summary>Developer detail (development only)</summary>
+        <pre style="text-align:left; overflow:auto; white-space:pre-wrap;"><%= detail %></pre>
+      </details>
+    <% } %>
+  </div>
+</main>

@@ -1,0 +1,218 @@
+/* ============================================================================
+   motion.css — the Playground's movement vocabulary.
+
+   One motif, used everywhere: the Seed of Life. Circles are drawn, they bloom
+   outward from a centre, they breathe, and they close into a seal. Nothing
+   moves for decoration — each movement says one of four things:
+
+     ARRIVING    something has come in and is ready         (bloom, draw)
+     ALIVE       this place is inhabited, nothing is wrong  (breathe, orbit, drift)
+     BECOMING    your action changed something              (seal, saved, lens)
+     ORIENTING   you moved, and here is where you went      (lift, focus, rail)
+
+   Brand Reference v1.1 section 5 asks for gentle purposeful movement and no
+   constant or distracting motion. So: ambient loops run at 40-220 seconds and
+   under 0.2 opacity, entrances run once, and nothing animates that a Member is
+   trying to read or click.
+
+   Every duration multiplies by --motion-scale. At 0 the whole system collapses
+   to its finished state instantly — states still change, they just arrive.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- keyframes */
+
+/* ARRIVING — the universal entrance. Rises, opens slightly past its size, and
+   settles. Modelled on a circle being compass-drawn rather than a panel
+   sliding in from an edge. */
+@keyframes lif-bloom {
+  0%   { opacity: 0; transform: translateY(18px) scale(0.955); }
+  60%  { opacity: 1; transform: translateY(-3px) scale(1.008); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes lif-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes lif-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ARRIVING — a circle drawing itself, compass-style. Paired with
+   pathLength="1" on the SVG circle so the maths is the same at any radius. */
+@keyframes lif-draw {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* ARRIVING — a petal opening outward from the centre of the Seed. */
+@keyframes lif-petal-open {
+  0%   { opacity: 0; transform: scale(0.08); }
+  55%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* The same opening, settling to a tint rather than to a solid fill. The rings
+   are the Seed of Life; the colour is only there to say which Aspect is which,
+   so it must never end up covering the geometry. */
+@keyframes lif-petal-tint {
+  0%   { opacity: 0;    transform: scale(0.08); }
+  55%  { opacity: 0.26; transform: scale(1.06); }
+  100% { opacity: 0.16; transform: scale(1); }
+}
+
+/* ALIVE — the slow breath. Amplitude is deliberately tiny; you should notice
+   it only if you look for it. */
+@keyframes lif-breathe {
+  0%, 100% { transform: scale(1);     opacity: 0.85; }
+  50%      { transform: scale(1.035); opacity: 1; }
+}
+
+/* ALIVE — ambient lattice rotation. Minutes per turn, not seconds. */
+@keyframes lif-orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ALIVE — colour fields drifting behind the page. */
+@keyframes lif-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(26px, -20px, 0) scale(1.06); }
+  66%      { transform: translate3d(-18px, 16px, 0) scale(0.96); }
+}
+
+/* BECOMING — a ring expanding outward and dissolving. Used for the Saved
+   indicator and for a completed pathway step. Quiet, never celebratory. */
+@keyframes lif-ping {
+  from { opacity: 0.5;  transform: scale(0.55); }
+  to   { opacity: 0;    transform: scale(2.3); }
+}
+
+/* BECOMING — the Welcome Home seal closing once the core pathway is complete. */
+@keyframes lif-seal {
+  0%   { stroke-dashoffset: 1; opacity: 0.35; }
+  70%  { stroke-dashoffset: 0; opacity: 1; }
+  85%  { transform: scale(1.05); }
+  100% { stroke-dashoffset: 0; opacity: 1; transform: scale(1); }
+}
+
+/* ORIENTING — a soft pulse of the accent, used to say "this is the thing you
+   just changed" without a badge or a toast. */
+@keyframes lif-attend {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 34%, transparent); }
+  100% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+
+@keyframes lif-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Calm progress. A shimmer travelling across a placeholder, at low contrast,
+   so a loading card reads as "on its way" and never as a real zero. */
+@keyframes lif-shimmer {
+  from { background-position: -160% 0; }
+  to   { background-position: 260% 0; }
+}
+
+/* ---------------------------------------------------------- utility classes */
+
+/* Stagger: set --i on each child and they arrive in sequence rather than as a
+   slab. Capped so a dense Playground never makes a Member wait. */
+.lif-enter {
+  animation: lif-bloom calc(var(--dur-settle) * var(--motion-scale)) var(--ease-bloom) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger) * var(--motion-scale));
+}
+
+.lif-enter--rise {
+  animation-name: lif-rise;
+  animation-duration: calc(var(--dur-calm) * var(--motion-scale));
+  animation-timing-function: var(--ease-out);
+}
+
+.lif-enter--fade {
+  animation-name: lif-fade;
+  animation-timing-function: ease;
+}
+
+.lif-breathe {
+  animation: lif-breathe calc(6.5s * var(--motion-scale, 1)) var(--ease-in-out) infinite;
+  transform-origin: center;
+}
+
+.lif-attend {
+  animation: lif-attend calc(var(--dur-bloom) * var(--motion-scale)) var(--ease-out) 1;
+}
+
+/* --------------------------------------------------------- the lens wipe ---
+   Switching between "For me" and "Whole Playground" is a change of view, not a
+   change of permission. So it reads as a lens opening over the same place: a
+   circle expanding from the control you pressed. Where the View Transitions
+   API exists the real content is revealed through the circle; elsewhere the
+   grid cross-fades and re-blooms.                                            */
+
+/* Cross-document transitions, where the browser supports them. Every ordinary
+   move between Playground pages gets a quiet settle — "you moved, and here is
+   where you went" — rather than a white flash. */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) {
+  animation: lif-vt-out calc(var(--dur-quick) * var(--motion-scale)) ease both;
+}
+::view-transition-new(root) {
+  animation: lif-vt-in calc(var(--dur-calm) * var(--motion-scale)) var(--ease-out) both;
+}
+
+@keyframes lif-vt-out { to   { opacity: 0; } }
+@keyframes lif-vt-in  { from { opacity: 0; transform: translateY(8px); } }
+
+/* The lens. Set only when the Member pressed the scope switch, and the origin
+   is the control they actually pressed, so the new view opens out of it. */
+html[data-lens] ::view-transition-old(root) { animation: none; }
+html[data-lens] ::view-transition-new(root) {
+  animation: lif-lens calc(var(--dur-bloom) * var(--motion-scale)) var(--ease-out) both;
+}
+
+@keyframes lif-lens {
+  from { clip-path: circle(0% at var(--lens-x, 50%) var(--lens-y, 50%)); }
+  to   { clip-path: circle(145% at var(--lens-x, 50%) var(--lens-y, 50%)); }
+}
+
+/* ----------------------------------------------------------- stillness -----
+   The OS preference and the Member's own control are both honoured, and they
+   are honoured the same way. Ambient loops stop entirely rather than running at
+   zero duration; one-shot entrances collapse to their finished state.        */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  .lif-ambient,
+  .lif-breathe,
+  .seed-mark__ring,
+  .lif-ambient__lattice,
+  .lif-ambient__field {
+    animation: none !important;
+  }
+}
+
+:root[data-motion='still'] *,
+:root[data-motion='still'] *::before,
+:root[data-motion='still'] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+}
+
+:root[data-motion='still'] .lif-ambient,
+:root[data-motion='still'] .lif-breathe,
+:root[data-motion='still'] .lif-ambient__lattice,
+:root[data-motion='still'] .lif-ambient__field {
+  animation: none !important;
+}

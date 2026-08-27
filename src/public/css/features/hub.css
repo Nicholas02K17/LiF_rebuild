@@ -1,0 +1,618 @@
+/* ============================================================================
+   hub.css — My Playground.
+
+   Information hierarchy, in order, from Dashboard Unified v1.2 section 0.5:
+     1  Welcome and orientation
+     2  Meaningful current activity
+     3  Discovery
+     4  Summaries
+     5  Administration
+   The stylesheet follows that order so the source and the screen agree.
+   ========================================================================== */
+
+/* ================================================= 1 — welcome and arrival == */
+
+.welcome {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-7);
+  padding-block: var(--sp-6) var(--sp-2);
+}
+
+.welcome__copy { display: flex; flex-direction: column; gap: var(--sp-4); max-width: 46ch; }
+
+.welcome__greeting {
+  font-size: var(--fs-3xl);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+}
+
+/* The Playground Name is the one word that carries the Aspect colour, so the
+   greeting is personal without becoming decorative. */
+.welcome__name { color: var(--accent); }
+
+.welcome__orientation { font-size: 1.06rem; color: var(--ink-muted); }
+
+/* Return-to-intent. Shown only when a participation action was interrupted, so
+   it reads as "we kept your place" and never as a standing nag
+   (Shared Foundation v1.4 section 4). */
+.welcome__intent {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  font-size: var(--fs-sm);
+}
+
+/* --------------------------------------------------- the pathway medallion --
+   Welcome Home Pathway progress, drawn as the Seed of Life. The centre circle
+   is the Member. Five surrounding seats are the five pathway components, and
+   the sixth is the Welcome Home seal, which closes only when the four core
+   components are complete.
+
+   LIF-REVIEW-001 — this seat mapping is a reversible presentation choice and
+   lives in src/services/pathway.service.js. See docs/LIF-REVIEW.md.          */
+
+.medallion {
+  position: relative;
+  width: clamp(210px, 24vw, 290px);
+  aspect-ratio: 1;
+  flex-shrink: 0;
+}
+
+.medallion__svg { width: 100%; height: 100%; overflow: visible; }
+
+.medallion__centre {
+  fill: var(--paper-raised);
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+
+.medallion__initial {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  fill: var(--accent);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* Every seat is drawn faintly, so the whole shape is present from the start —
+   the pathway is a thing you are completing, not a thing you are earning. */
+.medallion__seat {
+  fill: none;
+  stroke: var(--seat-colour, var(--line-strong));
+  stroke-width: 2;
+  opacity: 0.42;
+  transition: stroke var(--dur-calm) ease, opacity var(--dur-calm) ease;
+}
+
+/* A completed seat draws itself in its own Aspect colour. */
+.medallion__seat--done {
+  stroke: var(--seat-colour, var(--accent));
+  stroke-width: 2.8;
+  opacity: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: lif-draw calc(var(--dur-bloom) * var(--motion-scale)) var(--ease-out) both;
+  animation-delay: calc((360ms + var(--seat, 0) * 150ms) * var(--motion-scale));
+}
+
+.medallion__fill {
+  fill: var(--seat-colour, var(--accent));
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.medallion__seat--done + .medallion__fill {
+  animation: medallion-fill calc(var(--dur-settle) * var(--motion-scale)) var(--ease-bloom) both;
+  animation-delay: calc((760ms + var(--seat, 0) * 150ms) * var(--motion-scale));
+}
+
+@keyframes medallion-fill {
+  from { opacity: 0;    transform: scale(0.2); }
+  to   { opacity: 0.2; transform: scale(1); }
+}
+
+/* The seal. Closed only when the four core components are complete, and when it
+   closes it does so once, quietly. */
+.medallion__seal {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.6;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0.35;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.medallion__seal--closed {
+  animation: lif-seal calc(1500ms * var(--motion-scale)) var(--ease-bloom) both;
+  animation-delay: calc(1100ms * var(--motion-scale));
+}
+
+/* The medallion breathes at the pace of a slow exhale while the pathway is
+   still open, and rests once it is complete. */
+.medallion__svg { animation: lif-breathe calc(9s * var(--motion-scale)) var(--ease-in-out) infinite; }
+.medallion[data-complete='true'] .medallion__svg { animation: none; }
+
+.medallion__hit {
+  fill: transparent;
+  cursor: pointer;
+  transition: opacity var(--dur-quick) ease;
+}
+.medallion__svg g:hover .medallion__fill,
+.medallion__svg g:focus-within .medallion__fill { opacity: 0.28; }
+.medallion__svg g:hover .medallion__seat,
+.medallion__svg g:focus-within .medallion__seat { opacity: 1; }
+
+.medallion__caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -6px;
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------ the pathway panel -- */
+
+.pathway {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper-raised) 76%, transparent);
+  backdrop-filter: blur(8px);
+  padding: var(--sp-5) var(--sp-5) var(--sp-4);
+  transition: padding var(--dur-calm) var(--ease-out);
+}
+
+.pathway__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.pathway__title { font-size: var(--fs-xl); }
+.pathway__intro { font-size: var(--fs-sm); color: var(--ink-muted); margin-top: var(--sp-2); }
+
+.pathway__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(224px, 100%), 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+
+.pathway-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: transform var(--dur-calm) var(--ease-out),
+              border-color var(--dur-calm) ease,
+              box-shadow var(--dur-calm) ease;
+}
+
+.pathway-step:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--seat-colour, var(--accent)) 42%, var(--line));
+  box-shadow: var(--shadow-sm);
+}
+
+/* A completed step keeps its colour and its wording; it is not struck through,
+   greyed out or crossed off. Arriving is not a checklist. */
+.pathway-step[data-complete='true'] { background: color-mix(in srgb, var(--seat-tint, var(--accent-soft)) 42%, var(--paper-raised)); }
+
+.pathway-step__mark {
+  width: 26px; height: 26px;
+  flex-shrink: 0;
+}
+.pathway-step__mark circle {
+  fill: none;
+  stroke: var(--seat-colour, var(--ink-faint));
+  stroke-width: 2;
+}
+.pathway-step[data-complete='true'] .pathway-step__mark circle:last-child { fill: var(--seat-colour, var(--accent)); stroke: none; }
+
+.pathway-step__title { font-weight: 700; font-size: var(--fs-sm); line-height: var(--lh-snug); }
+.pathway-step__invitation { font-size: var(--fs-xs); color: var(--ink-muted); line-height: var(--lh-snug); }
+
+.pathway-step__flag {
+  align-self: flex-start;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.pathway-step[data-complete='true'] .pathway-step__flag { color: var(--seat-colour, var(--accent)); }
+
+/* Minimized: the panel keeps gentle progress visibility and an obvious way
+   back in (Dashboard Unified v1.2 section 0.8). */
+.pathway[data-minimized='true'] { padding-block: var(--sp-3) var(--sp-3); }
+.pathway[data-minimized='true'] .pathway__list,
+.pathway[data-minimized='true'] .pathway__intro { display: none; }
+.pathway[data-minimized='true'] .pathway__title { font-size: var(--fs-lg); }
+
+.pathway__mini {
+  display: none;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.pathway[data-minimized='true'] .pathway__mini { display: flex; }
+
+.pathway__mini-seed { width: 30px; height: 30px; }
+.pathway__mini-seed circle { fill: none; stroke: var(--line-strong); stroke-width: 2; }
+.pathway__mini-seed circle[data-done='true'] { stroke: var(--seat-colour, var(--accent)); }
+
+.pathway__complete {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--nature-nurture-600);
+  font-weight: 600;
+  margin-top: var(--sp-4);
+}
+
+/* ================================================ 2 — meaningful activity == */
+
+.activity { display: flex; flex-direction: column; gap: var(--sp-3); }
+
+.activity-item {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  transition: transform var(--dur-calm) var(--ease-out),
+              border-color var(--dur-calm) ease,
+              box-shadow var(--dur-calm) ease;
+}
+
+.activity-item:hover {
+  transform: translateX(3px);
+  border-color: color-mix(in srgb, var(--aspect-600, var(--accent)) 34%, var(--line));
+  box-shadow: var(--shadow-sm);
+}
+
+/* The Aspect the item belongs to, as a single circle. It fills on hover — the
+   smallest possible version of the same bloom. */
+.activity-item__dot {
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+}
+.activity-item__dot circle {
+  fill: none;
+  stroke: var(--aspect-600, var(--accent));
+  stroke-width: 2;
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: fill var(--dur-calm) var(--ease-out), transform var(--dur-calm) var(--ease-bloom);
+}
+.activity-item:hover .activity-item__dot circle:last-child {
+  fill: var(--aspect-600, var(--accent));
+  transform: scale(1.12);
+}
+
+.activity-item__title { font-weight: 700; font-size: var(--fs-md); }
+.activity-item__context { font-size: var(--fs-xs); color: var(--ink-faint); margin-top: 1px; }
+.activity-item__body { font-size: var(--fs-sm); color: var(--ink-muted); margin-top: var(--sp-2); }
+
+.activity-item__action { white-space: nowrap; }
+
+@media (max-width: 700px) {
+  .activity-item { grid-template-columns: auto minmax(0, 1fr); }
+  .activity-item__action { grid-column: 2; justify-self: start; }
+}
+
+/* ======================================================== 3 — discovery === */
+
+.discovery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  gap: var(--sp-4);
+}
+
+.suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  border: 1px dashed color-mix(in srgb, var(--aspect-600, var(--accent)) 34%, var(--line));
+  background: color-mix(in srgb, var(--aspect-100, var(--accent-soft)) 26%, transparent);
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--dur-calm) var(--ease-out), border-style var(--dur-quick) ease;
+}
+.suggestion:hover { transform: translateY(-2px); border-style: solid; }
+
+.suggestion__kind {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--aspect-600, var(--accent));
+}
+.suggestion__title { font-family: var(--font-display); font-size: var(--fs-md); font-weight: 600; }
+
+/* Every suggestion says why it appeared and where the preference lives
+   (Dashboard Unified v1.2 section 0.12). */
+.suggestion__reason { font-size: var(--fs-xs); color: var(--ink-muted); line-height: var(--lh-snug); }
+
+/* ======================================================== 4 — summaries === */
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(288px, 100%), 1fr));
+  gap: var(--sp-4);
+  align-items: stretch;
+}
+
+/* Reordering. The card being carried lifts and tilts a little; the gap it will
+   fall into opens rather than snapping. */
+.card[draggable='true'] { cursor: grab; }
+.card.is-lifted {
+  cursor: grabbing;
+  transform: scale(1.03) rotate(-0.6deg);
+  box-shadow: var(--shadow-bloom);
+  z-index: 3;
+}
+.card.is-target {
+  border-color: var(--accent);
+  border-style: dashed;
+}
+
+.cards-hidden {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-top: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+}
+
+/* ============================================ 5 — administration and rail == */
+
+.rail {
+  position: sticky;
+  top: 84px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-height: calc(100vh - 108px);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  /* The panel scrolls only when it has to, and when it does the bar is a hair
+     rather than a rule — it is a side panel, not a second document. */
+  padding-inline-end: var(--sp-3);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--line-strong) 62%, transparent) transparent;
+}
+
+.rail__section { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+.rail__label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  transition: opacity var(--dur-quick) ease;
+}
+
+.rail__links { display: flex; flex-direction: column; gap: 2px; }
+
+.rail__link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--ink-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: background var(--dur-quick) ease, color var(--dur-quick) ease;
+  white-space: nowrap;
+}
+.rail__link:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); color: var(--ink); }
+.rail__link[aria-current='page'] { color: var(--accent-strong); background: var(--accent-soft); }
+
+.rail__bullet {
+  width: 8px; height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.6px solid var(--aspect-600, currentColor);
+  transition: background var(--dur-quick) ease, transform var(--dur-quick) var(--ease-bloom);
+}
+.rail__link:hover .rail__bullet { background: var(--aspect-600, currentColor); transform: scale(1.3); }
+
+/* Minimized rail: labels fade, bullets stay, and the recovery control is always
+   present (Dashboard Unified v1.2 section 0.7). */
+.shell__body[data-rail='shut'] .rail__label,
+.shell__body[data-rail='shut'] .rail__link span,
+.shell__body[data-rail='shut'] .rail__note { opacity: 0; pointer-events: none; }
+.shell__body[data-rail='shut'] .rail__link { justify-content: center; }
+.shell__body[data-rail='shut'] .aspect-wheel__caption { display: none; }
+
+.rail__note { font-size: var(--fs-xs); color: var(--ink-faint); line-height: var(--lh-snug); }
+
+/* -------------------------------------------------------- the aspect wheel --
+   Theme selection, drawn as the Seed of Life itself. Choosing a circle re-tints
+   navigation highlights, buttons, borders and selected states — and nothing
+   else. Aspect colours, logo colours and status colours are untouched
+   (Brand Reference v1.1 section 4).                                          */
+
+.aspect-wheel { display: flex; flex-direction: column; gap: var(--sp-2); align-items: center; }
+
+.aspect-wheel__svg { width: 100%; max-width: 138px; overflow: visible; }
+
+.aspect-wheel__seat {
+  fill: none;
+  stroke: var(--seat-colour);
+  stroke-width: 2;
+  opacity: 0.55;
+  cursor: pointer;
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: opacity var(--dur-quick) ease,
+              stroke-width var(--dur-quick) ease,
+              transform var(--dur-calm) var(--ease-bloom);
+}
+.aspect-wheel__seat:hover { opacity: 1; stroke-width: 3.4; transform: scale(1.09); }
+
+.aspect-wheel__seat[data-pressed='true'] {
+  opacity: 1;
+  stroke-width: 4;
+  fill: color-mix(in srgb, var(--seat-colour) 16%, transparent);
+}
+
+/* When one Aspect is chosen the others step back rather than disappearing. */
+.aspect-wheel[data-chosen] .aspect-wheel__seat:not([data-pressed='true']) { opacity: 0.26; }
+
+/* The real, submittable control.
+   Hidden until something inside it takes focus, then shown exactly where it
+   sits — so a keyboard user is never sent somewhere invisible, and a pointer
+   user is not shown two copies of the same seven choices. */
+.aspect-wheel__choices {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.aspect-wheel__choices:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  justify-content: center;
+  padding-top: var(--sp-2);
+}
+
+.aspect-wheel__choice[aria-pressed='true'] {
+  background: var(--aspect-100, var(--accent-soft));
+  border-color: var(--aspect-600, var(--accent));
+  color: color-mix(in srgb, var(--aspect-600, var(--accent)) 80%, var(--ink));
+}
+
+.aspect-wheel__caption {
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  text-align: center;
+  line-height: var(--lh-snug);
+}
+
+.aspect-wheel__chosen { font-weight: 700; color: var(--accent); }
+
+/* ----------------------------------------------------------- motion control */
+
+.motion-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.motion-toggle input {
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+}
+
+/* ======================================================== prototype page == */
+
+.prototype {
+  max-width: 62ch;
+  margin-inline: auto;
+  padding-block: var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  text-align: center;
+  align-items: center;
+}
+
+.prototype__flag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-pill);
+  background: var(--community-inclusion-100);
+  color: color-mix(in srgb, var(--community-inclusion-600) 76%, var(--ink));
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.prototype__mark { width: 120px; height: 120px; opacity: 0.6; }
+.prototype__mark circle { fill: none; stroke: var(--aspect-600, var(--accent)); stroke-width: 1.8; }
+
+.prototype__owner {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+/* =============================================================== responsive */
+
+@media (max-width: 940px) {
+  .welcome { grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); }
+  .medallion { justify-self: center; }
+
+  /* The welcome hierarchy is preserved on mobile — it does not collapse into a
+     notification feed above a menu (Dashboard Unified v1.2 section 0.13). */
+  .rail {
+    position: static;
+    max-height: none;
+    order: 2;
+    border-top: 1px solid var(--line);
+    padding-top: var(--sp-5);
+  }
+  .stage { order: 1; }
+  .shell__body { display: flex; flex-direction: column; }
+}
+
+@media (max-width: 560px) {
+  .welcome__greeting { font-size: clamp(2rem, 8vw, 2.6rem); }
+  .cards-grid { grid-template-columns: minmax(0, 1fr); }
+}

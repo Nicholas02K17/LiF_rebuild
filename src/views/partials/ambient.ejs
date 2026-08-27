@@ -1,0 +1,24 @@
+<%
+  /* The ambient field: two very large, very faint Seed of Life lattices turning
+     slowly behind the page, over three drifting colour fields. Decorative, so
+     it is hidden from assistive technology entirely.
+     `seed` is prepared by src/middleware/requestContext.js — no template does
+     its own lookups. */
+%>
+<div class="lif-ambient" aria-hidden="true" data-parallax>
+  <div class="lif-ambient__field lif-ambient__field--one"></div>
+  <div class="lif-ambient__field lif-ambient__field--two"></div>
+  <div class="lif-ambient__field lif-ambient__field--three"></div>
+
+  <svg class="lif-ambient__lattice lif-ambient__lattice--a" viewBox="0 0 200 200" fill="none">
+    <% seed.forEach(function (s) { %>
+      <circle cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" stroke="<%= s.colour %>" stroke-width="0.7" />
+    <% }); %>
+  </svg>
+
+  <svg class="lif-ambient__lattice lif-ambient__lattice--b" viewBox="0 0 200 200" fill="none">
+    <% seed.forEach(function (s) { %>
+      <circle cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" stroke="<%= s.colour %>" stroke-width="0.6" />
+    <% }); %>
+  </svg>
+</div>

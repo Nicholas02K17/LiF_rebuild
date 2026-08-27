@@ -1,0 +1,49 @@
+<%- include('../../partials/topbar', { navigation: navigation }) %>
+
+<main class="stage" id="stage" tabindex="-1">
+  <div class="prototype" data-aspect="<%= destination.aspectKey %>">
+
+    <svg class="prototype__mark lif-breathe" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+      <% seed.forEach(function (s) { %>
+        <circle cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" />
+      <% }); %>
+    </svg>
+
+    <p class="prototype__flag">Prototype — requires LiF approval</p>
+
+    <h1 class="lif-enter"><%= destination.title %></h1>
+
+    <% if (destination.comingSoon) { %>
+      <p class="lede lif-enter" style="--i: 1;">
+        This part of the Playground is being prepared. It will open here when it
+        is ready — nothing is missing from your Playground until then.
+      </p>
+    <% } else { %>
+      <p class="lede lif-enter" style="--i: 1;">
+        This destination is real and reachable, and it is deliberately not built
+        yet. It belongs to its own specification and its own Journey ID, so
+        building it here would be work outside the assigned scope.
+      </p>
+    <% } %>
+
+    <% if (destination.focus) { %>
+      <p class="muted lif-enter" style="--i: 2;">
+        You arrived focused on <strong><%= destination.focus %></strong>, and the
+        focus token travelled correctly. The full page will open on that
+        category.
+      </p>
+    <% } %>
+
+    <% if (destination.component) { %>
+      <p class="muted lif-enter" style="--i: 2;">
+        Pathway component: <strong><%= destination.component %></strong>. Your
+        progress on the other components is untouched, and nothing you have
+        entered anywhere has been lost.
+      </p>
+    <% } %>
+
+    <p class="prototype__owner lif-enter" style="--i: 3;">Owned by: <%= destination.owner %></p>
+
+    <a class="btn btn--primary lif-enter" style="--i: 4;" href="/">Return to My Playground</a>
+  </div>
+</main>

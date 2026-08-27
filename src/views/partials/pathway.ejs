@@ -1,0 +1,91 @@
+<%
+  /* The Welcome Home Pathway panel.
+
+     Dashboard Unified v1.2 section 0.8 — an invitation to arrive, not a
+     compliance checklist. Components may be completed in any order, incomplete
+     status stays visible without shame, and the panel may be minimized while
+     keeping gentle progress visibility and an obvious reopen control.
+
+     Locals: pathway, identity. */
+  var seatColour = function (seat) {
+    var s = seed.find(function (item) { return item.seat === seat; });
+    return s ? s.colour : 'var(--accent)';
+  };
+  var seatTint = function (seat) {
+    var s = seed.find(function (item) { return item.seat === seat; });
+    return s ? s.tint : 'var(--accent-soft)';
+  };
+%>
+<section class="pathway lif-enter" style="--i: 3;" data-pathway data-minimized="<%= pathway.minimized %>"
+         aria-labelledby="pathway-title">
+
+  <div class="pathway__head">
+    <div>
+      <h2 class="pathway__title" id="pathway-title"><%= pathway.title %></h2>
+      <p class="pathway__intro"><%= pathway.intro %></p>
+
+      <div class="pathway__mini">
+        <svg class="pathway__mini-seed" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <% pathway.components.forEach(function (component) { %>
+            <circle cx="<%= component.geometry.x.toFixed(2) %>" cy="<%= component.geometry.y.toFixed(2) %>"
+                    r="<%= component.geometry.r %>"
+                    data-done="<%= component.complete %>"
+                    style="--seat-colour: <%= seatColour(component.seat) %>;" />
+          <% }); %>
+        </svg>
+        <span class="muted"><%= pathway.completedCore %> of <%= pathway.totalCore %> complete</span>
+      </div>
+    </div>
+
+    <%
+      /* Minimize and reopen are one control. It works as a plain form post, so
+         the preference is saved server-side even without JavaScript; the
+         browser module upgrades it to an in-place toggle. */
+    %>
+    <form method="post" action="/my-playground/layout" data-pathway-toggle>
+      <input type="hidden" name="pathwayMinimized" value="<%= pathway.minimized ? 'false' : 'true' %>">
+      <input type="hidden" name="returnTo" value="/">
+      <button type="submit" class="btn btn--quiet" aria-expanded="<%= !pathway.minimized %>" aria-controls="pathway-steps">
+        <%= pathway.minimized ? pathway.reopenLabel : pathway.minimizeLabel %>
+      </button>
+    </form>
+  </div>
+
+  <ul class="pathway__list" id="pathway-steps">
+    <% pathway.components.forEach(function (component, index) { %>
+      <li>
+        <a class="pathway-step lif-enter" href="<%= component.href %>"
+           style="--i: <%= 4 + index %>; --seat-colour: <%= seatColour(component.seat) %>; --seat-tint: <%= seatTint(component.seat) %>;"
+           data-complete="<%= component.complete %>">
+
+          <svg class="pathway-step__mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <circle cx="16" cy="16" r="13" />
+            <circle cx="16" cy="16" r="<%= component.complete ? 6 : 0 %>" />
+          </svg>
+
+          <span class="pathway-step__title"><%= component.title %></span>
+          <span class="pathway-step__invitation"><%= component.invitation %></span>
+
+          <span class="pathway-step__flag">
+            <% if (component.complete) { %>
+              Complete
+            <% } else if (component.optionalLabel) { %>
+              <%= component.optionalLabel %>
+            <% } else if (component.gatesParticipation) { %>
+              Opens participation
+            <% } else { %>
+              Whenever you like
+            <% } %>
+          </span>
+        </a>
+      </li>
+    <% }); %>
+  </ul>
+
+  <% if (pathway.allCoreComplete) { %>
+    <p class="pathway__complete">
+      <span class="saved__ring" aria-hidden="true"></span>
+      <%= pathway.completeMessage %>
+    </p>
+  <% } %>
+</section>
