@@ -6,6 +6,7 @@
     "api/diag.js":   { "includeFiles": "src/**" }
   },
   "rewrites": [
+    { "source": "/", "destination": "/api" },
     { "source": "/((?!api/).*)", "destination": "/api" }
   ]
 }
