@@ -10,16 +10,10 @@
       "src": "api/health.js",
       "use": "@vercel/node",
       "config": { "includeFiles": ["src/**", "dev/**"] }
-    },
-    {
-      "src": "api/diag.js",
-      "use": "@vercel/node",
-      "config": { "includeFiles": ["src/**", "dev/**"] }
     }
   ],
   "routes": [
     { "src": "/api/health", "dest": "/api/health.js" },
-    { "src": "/api/diag", "dest": "/api/diag.js" },
     { "src": "/(.*)", "dest": "/api/index.js" }
   ]
 }

@@ -61,8 +61,26 @@ anything. Both are covered by `tests/unit/config.guard.test.js`.
 
 `api/index.js` and `vercel.json` are already in the repo. Vercel does not run a
 long-lived process — it invokes a handler per request — and an Express app *is*
-a handler, so the same application object serves both. `vercel.json` rewrites
+a handler, so the same application object serves both. `vercel.json` routes
 every path to it, so Express keeps doing the routing.
+
+Two things in that config are load-bearing, and both cost real time to find:
+
+- **`routes` with `/(.*)`, not `rewrites`.** A `rewrites` pattern of
+  `/((?!api/).*)` matches every path *except* the empty one, so `/` never
+  reached a function and returned `FUNCTION_INVOCATION_FAILED` while every
+  other route worked perfectly.
+- **`includeFiles: ["src/**", "dev/**"]`.** Views, the terminology file and the
+  fixtures are all loaded by runtime path or conditional require, which a
+  static file tracer cannot follow. Without this they are simply absent.
+
+`ejs` is required at the top of `src/app.js` and registered with `app.engine()`
+for the same reason — `app.set('view engine', 'ejs')` alone resolves it with
+`require(variable)` at first render, which never gets bundled.
+
+`/api/health` reports Node version, deployment flags, which runtime files made
+it into the bundle and whether the app module loads. Useful when a deployment
+misbehaves; safe to delete when it does not.
 
 1. <https://vercel.com/new> → import **`Nicholas02K17/LiF_rebuild`**.
 2. Leave every build setting alone. Framework preset: **Other**. No build
