@@ -3,6 +3,7 @@
 const config = require('../config');
 const terminology = require('../services/terminology.service');
 const { seedOfLife } = require('../content/aspects');
+const assets = require('../config/assets');
 
 /**
  * The Seed of Life geometry, pre-rounded and pre-resolved to CSS custom
@@ -70,6 +71,8 @@ module.exports = function requestContext() {
     res.locals.requestPath = req.path;
     res.locals.seed = SEED_FOR_VIEW;
     res.locals.reviewDeployment = config.reviewDeployment;
+    // Templates never build an asset URL by hand; they call this.
+    res.locals.asset = assets.url;
 
     return next();
   };

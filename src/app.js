@@ -5,6 +5,7 @@ const express = require('express');
 const ejs = require('ejs');
 
 const config = require('./config');
+const assets = require('./config/assets');
 const layout = require('./middleware/layout');
 const requestContext = require('./middleware/requestContext');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
@@ -39,11 +40,42 @@ function mount(app) {
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
 
+  /**
+   * Asset caching, decided by whether the URL carries the current fingerprint.
+   *
+   *   with ?v=<current>  the URL changes whenever the file does, so it can be
+   *                      cached hard and never revalidated.
+   *   without it         an ES module importing './motion.js' does not inherit
+   *                      the entry point's query string, so those URLs are
+   *                      stable and must revalidate. An ETag makes that a 304
+   *                      in almost every case, which costs a round trip and
+   *                      nothing else — far cheaper than serving a stale module
+   *                      graph against fresh markup.
+   */
+  function assetCacheContext(req, res, next) {
+    res.locals.assetIsFingerprinted =
+      config.isProduction && req.query.v === assets.version();
+    next();
+  }
+
   app.use(
     '/assets',
+    assetCacheContext,
     express.static(path.join(__dirname, 'public'), {
-      maxAge: config.isProduction ? '7d' : 0,
-      etag: true
+      etag: true,
+      lastModified: true,
+      setHeaders(res) {
+        if (!config.isProduction) {
+          res.setHeader('Cache-Control', 'no-store');
+          return;
+        }
+        res.setHeader(
+          'Cache-Control',
+          res.locals.assetIsFingerprinted
+            ? 'public, max-age=31536000, immutable'
+            : 'public, max-age=0, must-revalidate'
+        );
+      }
     })
   );
 
