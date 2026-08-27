@@ -67,13 +67,26 @@ every path to it, so Express keeps doing the routing.
 1. <https://vercel.com/new> → import **`Nicholas02K17/LiF_rebuild`**.
 2. Leave every build setting alone. Framework preset: **Other**. No build
    command, no output directory — `vercel.json` covers it.
-3. Add one environment variable, for **all** environments:
+3. Add **one** environment variable, for Production and Preview:
 
    | Key | Value |
    | --- | --- |
    | `LIF_REVIEW_DEPLOYMENT` | `true` |
 
 4. Deploy.
+
+**Add nothing else.** `.env.example` is a local-development template, not a
+list of things to set on a host. In particular do not add `NODE_ENV` — Vercel
+sets it, and an empty value there reads as `development` to
+`NODE_ENV || 'development'`. `PORT` is set by the platform, `LIF_DATA_ADAPTER`
+falls through to the right default on its own, and `SESSION_SECRET` belongs to
+the host LiF application and is not read by this layer at all.
+
+A misconfigured `NODE_ENV` can no longer expose anything either way:
+`config.exposeErrorDetail` is false whenever a review deployment or a hosting
+platform is detected, whatever `NODE_ENV` says, so a failure shows the calm
+Member wording instead of a stack trace. `tests/unit/config.guard.test.js`
+holds that.
 
 Or from the terminal:
 

@@ -63,8 +63,9 @@ function errorHandler(error, req, res, next) {
     page: { title: `${copy.heading} — Love is Foundation`, path: req.path, reviewState: null },
     status,
     copy,
-    showDetail: !config.isProduction,
-    detail: config.isProduction ? null : error.stack
+    // One flag, decided in src/config. Never re-derive this from NODE_ENV here.
+    showDetail: config.exposeErrorDetail,
+    detail: config.exposeErrorDetail ? error.stack : null
   });
 }
 
