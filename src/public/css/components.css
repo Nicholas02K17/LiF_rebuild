@@ -611,6 +611,35 @@
   margin-top: var(--sp-8);
 }
 
+/* ========================================================== review banner ==
+   A hosted preview running on fixtures. Deliberately plain and unmissable,
+   above everything, and it scrolls away rather than following the reader. */
+
+.review-banner {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  margin: 0;
+  background: var(--community-inclusion-100);
+  border-bottom: 1px solid color-mix(in srgb, var(--community-inclusion-600) 26%, transparent);
+  color: color-mix(in srgb, var(--community-inclusion-600) 78%, var(--ink));
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  text-align: center;
+}
+
+.review-banner__dot {
+  width: 7px; height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--community-inclusion-600);
+  animation: lif-breathe calc(3.2s * var(--motion-scale)) var(--ease-in-out) infinite;
+}
+
 /* ============================================================ review flag ==
    Development-only banner for the non-ideal-state review flags. */
 

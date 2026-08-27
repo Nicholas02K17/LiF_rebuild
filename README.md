@@ -43,6 +43,75 @@ templates only ever see the two contracts in
 as blocker B-2 in [`docs/LIF-REVIEW.md`](docs/LIF-REVIEW.md), along with
 everything else that stopped for a decision instead of being invented.
 
+
+---
+
+## Deploying a review link
+
+The Hub has no backend behind it yet, so a hosted link runs on the fixtures in
+`/dev`. That is exactly what the production guard exists to prevent, so it has
+to be asked for by name: set **`LIF_REVIEW_DEPLOYMENT=true`**. The deployment
+then runs on sample data and says so in a banner on every page.
+
+Without that variable, a production build still refuses to boot on fixtures, and
+a production build with no repositories bound answers 500 rather than leaking
+anything. Both are covered by `tests/unit/config.guard.test.js`.
+
+### Vercel
+
+`api/index.js` and `vercel.json` are already in the repo. Vercel does not run a
+long-lived process — it invokes a handler per request — and an Express app *is*
+a handler, so the same application object serves both. `vercel.json` rewrites
+every path to it, so Express keeps doing the routing.
+
+1. <https://vercel.com/new> → import **`Nicholas02K17/LiF_rebuild`**.
+2. Leave every build setting alone. Framework preset: **Other**. No build
+   command, no output directory — `vercel.json` covers it.
+3. Add one environment variable, for **all** environments:
+
+   | Key | Value |
+   | --- | --- |
+   | `LIF_REVIEW_DEPLOYMENT` | `true` |
+
+4. Deploy.
+
+Or from the terminal:
+
+```bash
+npm i -g vercel
+vercel link
+vercel env add LIF_REVIEW_DEPLOYMENT production   # paste: true
+vercel --prod
+```
+
+If you deploy before adding the variable you get a 500 and a function log saying
+`LIF_DATA_ADAPTER=dev is not permitted in production`. That is the guard doing
+its job — add the variable and redeploy.
+
+**One caveat, and it is worth knowing before you demo it.** Serverless instances
+are recycled. The review adapter holds its state in memory, so hiding a card or
+choosing an Aspect theme sticks while the instance stays warm and resets to the
+seed data after a cold start. Nothing is broken — it is what running fixtures on
+serverless means. The real deployment writes through the bound repositories.
+
+### A platform that runs it as a normal process
+
+If you want the demo to hold its state properly, anything that runs `npm start`
+works with no adaptation at all — `api/index.js` and `vercel.json` are simply
+ignored:
+
+- **Render** — New Web Service → build `npm install`, start `npm start`.
+- **Railway** / **Fly.io** — same two commands.
+
+Set `LIF_REVIEW_DEPLOYMENT=true` there too. The app already reads `PORT` from
+the environment, which is what these platforms set.
+
+### When the real backend arrives
+
+Drop `LIF_REVIEW_DEPLOYMENT`, bind the two repositories and the viewer resolver
+as shown at the top of this file, and the banner disappears along with the
+fixtures. No template, view model or controller changes.
+
 ---
 
 ## Colour

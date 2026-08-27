@@ -44,7 +44,10 @@ module.exports = function requestContext() {
 
     if (typeof resolveViewer === 'function') {
       req.viewer = resolveViewer(req);
-    } else if (!config.isProduction) {
+    } else if (!config.isProduction || config.reviewDeployment) {
+      // A review deployment has no session layer behind it, so everyone who
+      // opens it is the same fixture Member. This is only reachable because
+      // LIF_REVIEW_DEPLOYMENT was set deliberately — see src/config/index.js.
       req.viewer = { ...DEV_VIEWER };
     } else {
       return next(
@@ -66,6 +69,7 @@ module.exports = function requestContext() {
     res.locals.viewer = req.viewer;
     res.locals.requestPath = req.path;
     res.locals.seed = SEED_FOR_VIEW;
+    res.locals.reviewDeployment = config.reviewDeployment;
 
     return next();
   };

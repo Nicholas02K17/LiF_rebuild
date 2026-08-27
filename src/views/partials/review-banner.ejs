@@ -1,0 +1,16 @@
+<%
+  /* Shown only on a deployment that declared itself a review deployment.
+     A hosted preview running on fixtures must never be mistaken for the
+     connected Playground, so it says what it is on every page rather than in a
+     README nobody opens. */
+%>
+<% if (reviewDeployment) { %>
+  <p class="review-banner" role="note">
+    <span class="review-banner__dot" aria-hidden="true"></span>
+    <span>
+      <strong>Review deployment.</strong>
+      Sample data, no LiF backend connected. Everything you change here is
+      temporary.
+    </span>
+  </p>
+<% } %>

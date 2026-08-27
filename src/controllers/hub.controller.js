@@ -8,12 +8,15 @@ const repositories = require('../repositories');
 const REVIEW_STATES = ['empty', 'loading', 'error', 'dense', 'restricted'];
 
 /**
- * Non-ideal states are reviewable from the browser during development so the
- * LiF experience reviewer never has to read code to see an empty, restricted or
- * failing Hub. Ignored entirely in production.
+ * Non-ideal states are reviewable from the browser, so the LiF experience
+ * reviewer never has to read code to see an empty, restricted or failing Hub.
+ *
+ * Available in development, and on a deployment that declared itself a review
+ * deployment — that is what a review deployment is for. Inert in a real
+ * production release, where `?state=` is ignored completely.
  */
 function applyReviewState(req) {
-  if (config.isProduction) return null;
+  if (config.isProduction && !config.reviewDeployment) return null;
   const requested = String(req.query.state || '');
   if (!REVIEW_STATES.includes(requested)) return null;
   const bound = repositories.get();
@@ -22,7 +25,7 @@ function applyReviewState(req) {
 }
 
 function clearReviewState() {
-  if (config.isProduction) return;
+  if (config.isProduction && !config.reviewDeployment) return;
   const bound = repositories.get();
   if (typeof bound.setReviewState === 'function') bound.setReviewState(null);
 }
