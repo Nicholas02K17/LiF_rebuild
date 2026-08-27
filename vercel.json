@@ -1,12 +1,25 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "functions": {
-    "api/index.js": { "includeFiles": "src/**" },
-    "api/health.js": { "includeFiles": "src/**" },
-    "api/diag.js":   { "includeFiles": "src/**" }
-  },
-  "rewrites": [
-    { "source": "/", "destination": "/api/health" },
-    { "source": "/((?!api/).*)", "destination": "/api" }
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["src/**", "dev/**"] }
+    },
+    {
+      "src": "api/health.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["src/**", "dev/**"] }
+    },
+    {
+      "src": "api/diag.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["src/**", "dev/**"] }
+    }
+  ],
+  "routes": [
+    { "src": "/api/health", "dest": "/api/health.js" },
+    { "src": "/api/diag", "dest": "/api/diag.js" },
+    { "src": "/(.*)", "dest": "/api/index.js" }
   ]
 }
