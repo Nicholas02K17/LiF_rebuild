@@ -19,6 +19,8 @@
  * keeps that state for as long as the process lives.
  */
 
+const NL = '\n';
+
 let app = null;
 let bootError = null;
 
@@ -66,14 +68,77 @@ function bootFailureHandler(req, res) {
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
   res.end(
-    'The LiF Hub could not start.\n\n' +
-      'This is a configuration problem rather than a fault in the page you asked for.\n' +
-      'The reason is in this deployment\'s function logs, and /api/health reports it too.\n\n' +
-      'The usual cause: a deployment with no LiF backend behind it needs the\n' +
-      'environment variable LIF_REVIEW_DEPLOYMENT set to true, and needs a\n' +
-      'redeploy afterwards — environment changes do not reach a build that has\n' +
-      'already happened.\n'
+    [
+      'The LiF Hub could not start.',
+      '',
+      'This is a configuration problem rather than a fault in the page you asked for.',
+      "The reason is in this deployment's function logs, and /api/health reports it too.",
+      '',
+      'The usual cause: a deployment with no LiF backend behind it needs the',
+      'environment variable LIF_REVIEW_DEPLOYMENT set to true, and needs a',
+      'redeploy afterwards — environment changes do not reach a build that has',
+      'already happened.',
+      ''
+    ].join(NL)
   );
 }
 
-module.exports = bootError ? bootFailureHandler : app;
+/**
+ * TEMPORARY request-level error reporting.
+ *
+ * The platform answers a failed invocation with an opaque page, and its runtime
+ * logs sit behind an account login — so a failure that happens only under the
+ * platform's own request objects is otherwise invisible from outside. This
+ * captures it and puts it in the response body.
+ *
+ * Delete this wrapper once the deployment is healthy. `module.exports = app`
+ * is the whole of it in normal operation.
+ */
+function reportingHandler(req, res) {
+  if (bootError) return bootFailureHandler(req, res);
+
+  let settled = false;
+
+  const finish = (error) => {
+    if (settled || res.headersSent) return;
+    settled = true;
+    console.error('[lif] request failed:', req && req.url, error);
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    res.end(
+      [
+        'LiF Hub — request failed',
+        '',
+        'url:     ' + (req && req.url),
+        'name:    ' + (error && error.name),
+        'message: ' + (error && error.message),
+        '',
+        String((error && error.stack) || '(no stack)')
+          .split(NL)
+          .slice(0, 14)
+          .join(NL),
+        ''
+      ].join(NL)
+    );
+  };
+
+  const release = () => {
+    settled = true;
+    process.off('uncaughtException', finish);
+    process.off('unhandledRejection', finish);
+  };
+
+  process.once('uncaughtException', finish);
+  process.once('unhandledRejection', finish);
+  res.on('finish', release);
+  res.on('close', release);
+
+  try {
+    return app(req, res);
+  } catch (error) {
+    return finish(error);
+  }
+}
+
+module.exports = reportingHandler;
