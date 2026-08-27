@@ -5,7 +5,7 @@
   "description": "LiF Playground \u2014 EJS presentation layer (Hub / My Playground). Built to be lifted into the authoritative LiF Node.js + Express application.",
   "type": "commonjs",
   "engines": {
-    "node": ">=20.11"
+    "node": "22.x"
   },
   "main": "src/server.js",
   "scripts": {
