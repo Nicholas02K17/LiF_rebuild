@@ -10,6 +10,12 @@
      Each seat is also a real link, so the medallion is a way in and not only a
      picture of progress.
 
+     STRUCTURE MATTERS HERE. Everything decorative is drawn first and is
+     explicitly not interactive; the links are drawn last, on top. Otherwise the
+     artwork intercepts the clicks — and it did: the centre circle's radius
+     equals the distance from the middle to each seat, so its stroke passes
+     exactly through the point every hit target is centred on.
+
      Locals: pathway, identity. */
   var seatColour = function (seat) {
     var s = seed.find(function (item) { return item.seat === seat; });
@@ -25,55 +31,70 @@
        role="img"
        aria-label="Your Welcome Home Pathway: <%= pathway.completedCore %> of <%= pathway.totalCore %> steps complete.">
 
-    <% pathway.components.forEach(function (component) { %>
-      <g style="--seat: <%= component.seat %>; --seat-colour: <%= seatColour(component.seat) %>;">
-        <circle class="medallion__seat <%= component.complete ? 'medallion__seat--done' : '' %>"
-                cx="<%= component.geometry.x.toFixed(2) %>"
-                cy="<%= component.geometry.y.toFixed(2) %>"
-                r="<%= component.geometry.r %>"
-                pathLength="1" />
-        <circle class="medallion__fill"
-                cx="<%= component.geometry.x.toFixed(2) %>"
-                cy="<%= component.geometry.y.toFixed(2) %>"
-                r="<%= component.geometry.r %>" />
-        <a href="<%= component.href %>" aria-label="<%= component.title %><%= component.complete ? ' — complete' : '' %>">
-          <circle class="medallion__hit"
+    <%# ---- the artwork: seven circles, none of them interactive ---- %>
+    <g class="medallion__art">
+      <% pathway.components.forEach(function (component) { %>
+        <g style="--seat: <%= component.seat %>; --seat-colour: <%= seatColour(component.seat) %>;">
+          <circle class="medallion__seat <%= component.complete ? 'medallion__seat--done' : '' %>"
                   cx="<%= component.geometry.x.toFixed(2) %>"
                   cy="<%= component.geometry.y.toFixed(2) %>"
-                  r="20" />
-        </a>
-      </g>
-    <% }); %>
+                  r="<%= component.geometry.r %>"
+                  pathLength="1" />
+          <circle class="medallion__fill"
+                  data-seat="<%= component.seat %>"
+                  cx="<%= component.geometry.x.toFixed(2) %>"
+                  cy="<%= component.geometry.y.toFixed(2) %>"
+                  r="<%= component.geometry.r %>" />
+        </g>
+      <% }); %>
 
-    <g style="--seat: <%= pathway.seal.seat %>; --seat-colour: <%= seatColour(pathway.seal.seat) %>;">
-      <circle class="medallion__seal <%= pathway.seal.closed ? 'medallion__seal--closed' : '' %>"
-              cx="<%= pathway.seal.geometry.x.toFixed(2) %>"
-              cy="<%= pathway.seal.geometry.y.toFixed(2) %>"
-              r="<%= pathway.seal.geometry.r %>"
-              pathLength="1" />
+      <g style="--seat: <%= pathway.seal.seat %>; --seat-colour: <%= seatColour(pathway.seal.seat) %>;">
+        <circle class="medallion__seal <%= pathway.seal.closed ? 'medallion__seal--closed' : '' %>"
+                cx="<%= pathway.seal.geometry.x.toFixed(2) %>"
+                cy="<%= pathway.seal.geometry.y.toFixed(2) %>"
+                r="<%= pathway.seal.geometry.r %>"
+                pathLength="1" />
+      </g>
+
+      <%
+        /* The seventh circle. The Seed of Life is six circles around a centre
+           one, all the same radius — the centre is the circle the other six are
+           constructed from, not decoration. It carries the Whole Human
+           Potential colour because that is the Aspect the centre holds. */
+      %>
+      <circle class="medallion__core"
+              cx="<%= pathway.centre.x %>"
+              cy="<%= pathway.centre.y %>"
+              r="<%= pathway.centre.r %>" />
+
+      <%
+        /* The Member sits at the middle. Kept small on purpose: the rosette
+           where all seven circles meet is the most legible part of the pattern,
+           and a wide disc would cover exactly that. */
+      %>
+      <circle class="medallion__initial-disc" cx="<%= pathway.centre.x %>" cy="<%= pathway.centre.y %>" r="16" />
+      <text class="medallion__initial" x="<%= pathway.centre.x %>" y="<%= pathway.centre.y %>"><%= identity.initial %></text>
     </g>
 
     <%
-      /* The seventh circle.
-         The Seed of Life is six circles around a centre one, all the same
-         radius — the centre is not decoration, it is the circle the other six
-         are constructed from. Drawing only the outer six leaves a Venn diagram.
-         It carries the Whole Human Potential colour because that is the Aspect
-         the centre holds. */
+      /* ---- the links, last and therefore on top ----
+         Each target sits at its seat's centre, which is the part of that circle
+         least shared with its neighbours, and is sized so neighbouring targets
+         never overlap. */
     %>
-    <circle class="medallion__core"
-            cx="<%= pathway.centre.x %>"
-            cy="<%= pathway.centre.y %>"
-            r="<%= pathway.centre.r %>" />
-
-    <%
-      /* The Member sits at the middle. Kept small on purpose: the rosette where
-         all seven circles meet is the most legible part of the pattern, and a
-         wide disc would cover exactly that. */
-    %>
-    <circle class="medallion__initial-disc" cx="<%= pathway.centre.x %>" cy="<%= pathway.centre.y %>" r="16" />
-    <text class="medallion__initial" x="<%= pathway.centre.x %>" y="<%= pathway.centre.y %>"><%= identity.initial %></text>
-
+    <g class="medallion__targets">
+      <% pathway.components.forEach(function (component) { %>
+        <a href="<%= component.href %>"
+           class="medallion__target"
+           style="--seat-colour: <%= seatColour(component.seat) %>; --seat-tint: <%= seatTint(component.seat) %>;"
+           aria-label="<%= component.title %><%= component.complete ? ' — complete' : '' %>">
+          <circle class="medallion__hit"
+                  cx="<%= component.geometry.x.toFixed(2) %>"
+                  cy="<%= component.geometry.y.toFixed(2) %>"
+                  r="22" />
+        </a>
+      <% }); %>
+    </g>
   </svg>
 
   <p class="medallion__caption">

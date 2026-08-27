@@ -158,15 +158,42 @@
 .medallion__svg { animation: lif-breathe calc(9s * var(--motion-scale)) var(--ease-in-out) infinite; }
 .medallion[data-complete='true'] .medallion__svg { animation: none; }
 
+/**
+ * Nothing in the artwork takes a pointer.
+ *
+ * The centre circle's radius equals the distance from the middle to each seat,
+ * so its stroke runs exactly through the point every hit target is centred on —
+ * which meant the artwork silently ate the clicks. Rather than nudge geometry
+ * that is correct, the artwork simply stops being interactive and the links sit
+ * on top of it.
+ */
+.medallion__art,
+.medallion__art * { pointer-events: none; }
+
+.medallion__targets { pointer-events: auto; }
+
 .medallion__hit {
   fill: transparent;
+  pointer-events: all;
   cursor: pointer;
-  transition: opacity var(--dur-quick) ease;
+  transition: fill var(--dur-quick) ease, stroke var(--dur-quick) ease;
+  stroke: transparent;
+  stroke-width: 2;
 }
-.medallion__svg g:hover .medallion__fill,
-.medallion__svg g:focus-within .medallion__fill { opacity: 0.28; }
-.medallion__svg g:hover .medallion__seat,
-.medallion__svg g:focus-within .medallion__seat { opacity: 1; }
+
+/* Answering the pointer is the only way a Member can tell these are doorways,
+   since the target is smaller than the circle it belongs to. */
+.medallion__target:hover .medallion__hit,
+.medallion__target:focus-visible .medallion__hit {
+  fill: color-mix(in srgb, var(--seat-colour) 22%, transparent);
+  stroke: var(--seat-colour);
+}
+
+.medallion__target:focus { outline: none; }
+.medallion__target:focus-visible .medallion__hit {
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
 
 .medallion__caption {
   position: absolute;

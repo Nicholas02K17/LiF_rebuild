@@ -167,3 +167,37 @@ test('a review state never leaks into the next request', async () => {
     assert.match(plain.body, /2 of 4 steps complete/, `${state} did not leak`);
   }
 });
+
+test('every medallion seat is a working link, and the artwork cannot swallow it', async () => {
+  const page = await get('/');
+
+  // One target per pathway component, each pointing at its own component.
+  const targets = [...page.body.matchAll(/<a href="([^"]+)"\s+class="medallion__target"/g)].map((m) => m[1]);
+  assert.equal(targets.length, 5, 'five components, five doorways');
+  assert.equal(new Set(targets).size, 5, 'each goes somewhere different');
+
+  for (const href of targets) {
+    const destination = await get(href);
+    assert.equal(destination.status, 200, `${href} answers`);
+  }
+
+  /**
+   * Order is the whole fix. The centre circle's radius equals the distance from
+   * the middle to each seat, so its stroke passes exactly through every hit
+   * target's centre — if the artwork is painted after the links, it takes the
+   * clicks and only whichever seat happens to sit on top still works.
+   */
+  const artAt = page.body.indexOf('medallion__art');
+  const targetsAt = page.body.indexOf('medallion__targets');
+  assert.ok(artAt > -1 && targetsAt > -1, 'both groups are present');
+  assert.ok(artAt < targetsAt, 'the artwork is painted before the links, so the links sit on top');
+
+  // Belt and braces: the artwork is also explicitly non-interactive in CSS.
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const css = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'src', 'public', 'css', 'features', 'hub.css'),
+    'utf8'
+  );
+  assert.match(css, /\.medallion__art \*\s*\{\s*pointer-events:\s*none/, 'the artwork takes no pointer events');
+});
