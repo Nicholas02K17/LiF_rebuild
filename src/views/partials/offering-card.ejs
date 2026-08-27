@@ -1,0 +1,76 @@
+<%
+  /* One card shape for a Gathering, a Group, a Resource or an Opportunity.
+
+     Events Human Mapping v1.0 §2 and Groups Human Mapping v1.1 §4.1 ask for the
+     same things: identity, who is holding it, when and where, format, language,
+     Area of Interest, access, and a truthful availability label. Only the
+     wording differs between features, so only the wording differs here.
+
+     Locals: item, index, kind. */
+%>
+<li class="offering lif-enter" style="--i: <%= index %>;" data-aspect="<%= item.aspectKey %>">
+  <svg class="offering__watermark" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+    <% seed.forEach(function (s) { %>
+      <circle cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" />
+    <% }); %>
+  </svg>
+
+  <div class="offering__head">
+    <p class="offering__aspect"><%= item.aspect ? item.aspect.label : '' %></p>
+    <% if (item.isNew) { %><span class="chip chip--new">New</span><% } %>
+  </div>
+
+  <h3 class="offering__title"><a href="<%= item.href %>"><%= item.title || item.name %></a></h3>
+
+  <% if (item.hostLine) { %><p class="offering__host"><%= item.hostLine %></p><% } %>
+  <% if (item.focus) { %><p class="offering__host"><%= item.focus %></p><% } %>
+  <% if (item.invitation) { %><p class="offering__invitation"><%= item.invitation %></p><% } %>
+  <% if (item.summary) { %><p class="offering__invitation"><%= item.summary %></p><% } %>
+
+  <dl class="offering__facts">
+    <% if (item.whenLabel) { %>
+      <div><dt>When</dt><dd><%= item.whenLabel %></dd></div>
+    <% } %>
+    <% if (item.commitment) { %>
+      <div><dt>Asks for</dt><dd><%= item.commitment %></dd></div>
+    <% } %>
+    <% if (item.formatLabel) { %>
+      <div><dt>How</dt><dd><%= item.formatLabel %><% if (item.placeLabel && item.formatLabel !== 'Online') { %> · <%= item.placeLabel %><% } %></dd></div>
+    <% } %>
+    <% if (item.kind) { %>
+      <div><dt>What</dt><dd><%= item.kind %></dd></div>
+    <% } %>
+    <% if (item.language) { %>
+      <div><dt>In</dt><dd><%= item.language %></dd></div>
+    <% } %>
+    <% if (item.accessLabel) { %>
+      <div><dt>Joining</dt><dd><%= item.accessLabel %></dd></div>
+    <% } %>
+    <% if (item.activityLabel) { %>
+      <div><dt>Right now</dt><dd><%= item.activityLabel %></dd></div>
+    <% } %>
+    <% if (item.costLabel) { %>
+      <div><dt>Cost</dt><dd><%= item.costLabel %></dd></div>
+    <% } %>
+  </dl>
+
+  <% if (item.availabilityLabel) { %>
+    <p class="offering__availability" data-tone="<%= item.availabilityTone %>"><%= item.availabilityLabel %></p>
+  <% } %>
+
+  <% if (item.reason) { %>
+    <p class="offering__reason"><%= item.reason %></p>
+  <% } %>
+
+  <div class="offering__foot">
+    <% if (item.primaryAction) { %>
+      <a class="btn <%= item.primaryAction.tone === 'primary' ? 'btn--primary' : 'btn--quiet' %>"
+         href="<%= item.primaryAction.href %>"><%= item.primaryAction.label %></a>
+    <% } else { %>
+      <a class="card__more" href="<%= item.href %>">
+        Open
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </a>
+    <% } %>
+  </div>
+</li>

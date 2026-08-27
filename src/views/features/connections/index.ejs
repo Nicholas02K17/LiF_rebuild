@@ -1,0 +1,91 @@
+<%- include('../../partials/feature-shell-open', { model: model, showFilters: false }) %>
+
+<%
+  /* Dashboard Unified v1.2 §9 and §19.2. Formal labels are Connection,
+     Invitation to Connect and Connected — never Playmate, Friend or
+     Co-Creator. A mutual relationship begins only after an invitation is
+     accepted, so nothing here implies a one-sided follow. */
+  var c = model.connections;
+%>
+
+<% if (c.invitations.length) { %>
+  <section aria-labelledby="invitations">
+    <div class="section-heading">
+      <h2 id="invitations">Waiting for you</h2>
+      <span class="faint">An Invitation to Connect is answered whenever you are ready</span>
+    </div>
+    <ul class="activity">
+      <% c.invitations.forEach(function (invitation, index) { %>
+        <li class="activity-item lif-enter" style="--i: <%= index %>;" data-aspect="<%= invitation.aspectKey %>">
+          <svg class="activity-item__dot" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <circle cx="16" cy="16" r="13" /><circle cx="16" cy="16" r="5" />
+          </svg>
+          <div>
+            <p class="activity-item__title"><%= invitation.from %> sent you an Invitation to Connect</p>
+            <p class="activity-item__context"><%= invitation.context %></p>
+            <p class="activity-item__body"><%= invitation.message %></p>
+          </div>
+          <span class="btn activity-item__action" data-prototype-action>Read and respond</span>
+        </li>
+      <% }); %>
+    </ul>
+    <p class="faint">
+      You can accept, say not now, or decline — and each of those can carry a
+      note if you want it to. None of them requires an explanation.
+    </p>
+  </section>
+<% } %>
+
+<section aria-labelledby="my-connections">
+  <div class="section-heading">
+    <h2 id="my-connections">My Connections</h2>
+    <span class="faint"><%= c.total %> <%= c.total === 1 ? 'Member' : 'Members' %></span>
+  </div>
+
+  <% if (c.connected.length) { %>
+    <ul class="people">
+      <% c.connected.forEach(function (person, index) { %>
+        <li class="person lif-enter" style="--i: <%= index %>;" data-aspect="<%= person.aspectKey %>">
+          <span class="person__initial" aria-hidden="true"><%= person.playgroundName.charAt(0) %></span>
+          <div>
+            <p class="person__name"><%= person.playgroundName %></p>
+            <p class="person__meta"><%= person.country %> · <%= person.area %></p>
+            <p class="person__shared">Together in: <%= person.shared %></p>
+          </div>
+        </li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <div class="state state--empty state--roomy">
+      <p class="state__title">No Connections yet.</p>
+      <p>They begin with an Invitation to Connect, in either direction. Nothing here counts as a connection until you both agree it is one.</p>
+      <p><a class="btn btn--primary" href="/gatherings">Find a Gathering</a></p>
+    </div>
+  <% } %>
+</section>
+
+<% if (c.suggestions.length) { %>
+  <section aria-labelledby="suggested-people">
+    <div class="section-heading">
+      <h2 id="suggested-people">Members who share something with you</h2>
+      <a class="chip" href="/pathway/what-interests-me">Change what interests you</a>
+    </div>
+    <ul class="people">
+      <% c.suggestions.forEach(function (person, index) { %>
+        <li class="person lif-enter" style="--i: <%= index %>;" data-aspect="<%= person.aspectKey %>">
+          <span class="person__initial" aria-hidden="true"><%= person.playgroundName.charAt(0) %></span>
+          <div>
+            <p class="person__name"><%= person.playgroundName %></p>
+            <p class="person__meta"><%= person.country %> · <%= person.area %></p>
+            <p class="person__shared">Because of: <%= person.shared %></p>
+          </div>
+          <span class="btn btn--quiet" data-prototype-action>Invitation to Connect</span>
+        </li>
+      <% }); %>
+    </ul>
+  </section>
+<% } %>
+
+<p class="prototype__flag">Prototype — sending and answering invitations is Dashboard §9 and is not built here</p>
+
+<%- include('../../partials/feature-shell-close', { model: model }) %>

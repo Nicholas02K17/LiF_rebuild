@@ -1,0 +1,18 @@
+<%- include('../../partials/feature-shell-open', { model: model }) %>
+
+<%- include('../../partials/result-states', { model: model }) %>
+
+<% if (model.items.length) { %>
+  <ul class="offering-grid">
+    <% model.items.forEach(function (item, index) { %>
+      <%- include('../../partials/offering-card', { item: item, index: index, kind: 'item' }) %>
+    <% }); %>
+  </ul>
+<% } %>
+
+<p class="prototype__flag">
+  Prototype — this area has no Unified specification yet and is built from the
+  Shared Foundation
+</p>
+
+<%- include('../../partials/feature-shell-close', { model: model }) %>

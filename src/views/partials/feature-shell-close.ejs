@@ -1,0 +1,12 @@
+</main>
+
+<footer class="page-footer">
+  <p>Love is Foundation · <a href="/">Return to My Playground</a></p>
+</footer>
+
+<% if (model.page.reviewState) { %>
+  <div class="review-flag">
+    <span>Reviewing the <strong><%= model.page.reviewState %></strong> state</span>
+    <a href="<%= model.page.path %>">back to normal</a>
+  </div>
+<% } %>

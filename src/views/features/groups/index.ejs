@@ -1,0 +1,43 @@
+<%- include('../../partials/feature-shell-open', { model: model }) %>
+
+<%- include('../../partials/result-states', { model: model }) %>
+
+<%
+  /* Groups Human Mapping v1.1 §3.1: My Groups and Explore Groups are distinct
+     regions. What a Member already belongs to comes first — welcome before
+     administration — and discovery follows it. */
+%>
+<% if (model.mine.length) { %>
+  <section aria-labelledby="my-groups">
+    <div class="section-heading">
+      <h2 id="my-groups">My Groups</h2>
+      <span class="faint">Where you already belong, and what you have asked to join</span>
+    </div>
+    <ul class="offering-grid">
+      <% model.mine.forEach(function (item, index) { %>
+        <%- include('../../partials/offering-card', { item: item, index: index, kind: 'group' }) %>
+      <% }); %>
+    </ul>
+  </section>
+<% } %>
+
+<% if (model.explore.length) { %>
+  <section aria-labelledby="explore-groups">
+    <div class="section-heading">
+      <h2 id="explore-groups">Explore Groups</h2>
+      <span class="faint">Open to you to discover</span>
+    </div>
+    <ul class="offering-grid">
+      <% model.explore.forEach(function (item, index) { %>
+        <%- include('../../partials/offering-card', { item: item, index: index, kind: 'group' }) %>
+      <% }); %>
+    </ul>
+  </section>
+<% } %>
+
+<p class="online-panel">
+  Groups here are joined by Request Access or by invitation — there is no
+  instant join, so a steward always knows who is arriving.
+</p>
+
+<%- include('../../partials/feature-shell-close', { model: model }) %>

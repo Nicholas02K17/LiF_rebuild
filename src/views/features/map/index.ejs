@@ -1,0 +1,103 @@
+<%- include('../../partials/feature-shell-open', { model: model }) %>
+
+<%
+  /* Map Human Mapping v1.2.
+
+     §1 asks for a living relational garden, not a grey institutional locator or
+     a GIS console — so this is a warm drawn frame with breathing room, not a
+     tile map. §5 allows only general areas: the repository has already coarsened
+     every coordinate, and no exact code or position exists on this page to leak.
+     §7 requires the legend to be always available and meaning never to rest on
+     colour, so every marker carries a letter as well as a hue. */
+%>
+<p class="map-orientation lif-enter" style="--i: 4;">
+  Showing the <strong><%= model.areaLabel %></strong> area — the general area saved
+  on your account. Your postal code is never shown here, to you or to anyone else.
+</p>
+
+<%- include('../../partials/result-states', { model: model }) %>
+
+<div class="map-frame lif-enter" style="--i: 5;">
+  <svg class="map-frame__canvas" viewBox="0 0 <%= model.view.width %> <%= model.view.height %>" role="img"
+       aria-label="A map of <%= model.total %> places across <%= model.areaLabel %>. Every marker is also listed below.">
+    <defs>
+      <radialGradient id="mapGlow" cx="50%" cy="45%" r="70%">
+        <stop offset="0%" stop-color="var(--community-inclusion-100)" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="var(--paper)" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <rect x="0" y="0" width="<%= model.view.width %>" height="<%= model.view.height %>" fill="url(#mapGlow)" />
+
+    <%# The water, drawn as a soft band rather than a coastline traced from data %>
+    <path class="map-frame__water" d="M -5 40 C 18 33, 34 45, 52 38 S 84 27, 105 36 L 105 60 L -5 60 Z" />
+
+    <%# A faint Seed of Life beneath it all, so the Map belongs to the Playground %>
+    <g class="map-frame__lattice" aria-hidden="true">
+      <% seed.forEach(function (s) { %>
+        <circle cx="<%= (s.cx / 200 * model.view.width).toFixed(2) %>"
+                cy="<%= (s.cy / 200 * model.view.height).toFixed(2) %>"
+                r="<%= (s.r / 200 * model.view.height * 0.9).toFixed(2) %>" />
+      <% }); %>
+    </g>
+
+    <% model.markers.forEach(function (marker, index) { %>
+      <a href="<%= marker.href %>" class="map-marker" data-aspect="<%= marker.aspectKey %>"
+         style="--i: <%= index %>;"
+         aria-label="<%= marker.marker === 'E' ? 'Gathering' : marker.marker === 'G' ? 'Group' : 'Member' %>: <%= marker.title || marker.name %><%= marker.area ? ', ' + marker.area : '' %>">
+        <circle class="map-marker__halo" cx="<%= marker.x %>" cy="<%= marker.y %>" r="3.4" />
+        <circle class="map-marker__core" cx="<%= marker.x %>" cy="<%= marker.y %>" r="2.1" />
+        <text class="map-marker__letter" x="<%= marker.x %>" y="<%= marker.y %>"><%= marker.marker %></text>
+        <% if (marker.format === 'hybrid') { %>
+          <text class="map-marker__badge" x="<%= (marker.x + 2.5).toFixed(2) %>" y="<%= (marker.y - 2.1).toFixed(2) %>">H</text>
+        <% } %>
+        <% if (marker.isNew) { %>
+          <text class="map-marker__badge map-marker__badge--new" x="<%= (marker.x - 2.5).toFixed(2) %>" y="<%= (marker.y - 2.1).toFixed(2) %>">N</text>
+        <% } %>
+      </a>
+    <% }); %>
+  </svg>
+
+  <ul class="map-legend" aria-label="What the markers mean">
+    <% model.legend.forEach(function (entry) { %>
+      <li><span class="map-legend__symbol"><%= entry.symbol %></span><%= entry.label %></li>
+    <% }); %>
+  </ul>
+</div>
+
+<% if (model.onlineCount) { %>
+  <p class="online-panel">
+    <strong><%= model.onlineCount %></strong>
+    offerings happen online, so they have no place on the map at all.
+    <a href="/gatherings?format=online">Open those instead</a>
+  </p>
+<% } %>
+
+<%
+  /* Every marker also appears as text. A map that only speaks in pins is
+     unusable to anyone who cannot see it (§1 — colour, shape, letters and text
+     work together). */
+%>
+<section aria-labelledby="map-list">
+  <div class="section-heading">
+    <h2 id="map-list">Everything on the map, as a list</h2>
+    <span class="faint"><%= model.total %> places</span>
+  </div>
+  <ul class="people">
+    <% model.markers.forEach(function (marker, index) { %>
+      <li class="person lif-enter" style="--i: <%= index %>;" data-aspect="<%= marker.aspectKey %>">
+        <span class="person__initial" aria-hidden="true"><%= marker.marker %></span>
+        <div>
+          <p class="person__name"><a href="<%= marker.href %>"><%= marker.title || marker.name %></a></p>
+          <p class="person__meta">
+            <%= marker.marker === 'E' ? 'Gathering' : marker.marker === 'G' ? 'Group' : 'Member' %>
+            <% if (marker.area) { %> · <%= marker.area %><% } %>
+            <% if (marker.formatLabel) { %> · <%= marker.formatLabel %><% } %>
+          </p>
+        </div>
+      </li>
+    <% }); %>
+  </ul>
+</section>
+
+<%- include('../../partials/feature-shell-close', { model: model }) %>

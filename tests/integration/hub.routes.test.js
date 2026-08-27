@@ -173,10 +173,15 @@ test('every medallion seat is a working link, and the artwork cannot swallow it'
 
   // One target per pathway component, each pointing at its own component.
   const targets = [...page.body.matchAll(/<a href="([^"]+)"\s+class="medallion__target"/g)].map((m) => m[1]);
-  assert.equal(targets.length, 5, 'five components, five doorways');
-  assert.equal(new Set(targets).size, 5, 'each goes somewhere different');
 
-  for (const href of targets) {
+  // Five pathway components plus the Welcome Home seal. The seal is not a step,
+  // but it is one of the six circles — leaving it inert read as broken, so it
+  // opens the pathway panel it summarises.
+  assert.equal(targets.length, 6, 'six circles, six doorways');
+  assert.equal(new Set(targets).size, 6, 'each goes somewhere different');
+  assert.ok(targets.includes('#pathway-title'), 'the seal opens the pathway panel');
+
+  for (const href of targets.filter((h) => !h.startsWith('#'))) {
     const destination = await get(href);
     assert.equal(destination.status, 200, `${href} answers`);
   }

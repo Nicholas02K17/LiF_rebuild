@@ -1,0 +1,22 @@
+<%
+  /* The top of every feature page: navigation, the heading, and the shared
+     discovery controls. Built once so no feature invents its own version of
+     the same three controls (Shared Foundation v1.4 section 8).
+
+     Locals: model, showFilters (default true). */
+  var withFilters = typeof showFilters === 'undefined' ? true : showFilters;
+%>
+<%- include('topbar', { navigation: model.navigation }) %>
+
+<main class="stage feature" id="stage" tabindex="-1">
+  <header class="feature__head">
+    <p class="eyebrow lif-enter">Playground</p>
+    <h1 class="feature__title lif-enter" style="--i: 1;"><%= model.title %></h1>
+    <% if (model.orientation) { %>
+      <p class="lede lif-enter" style="--i: 2;"><%= model.orientation %></p>
+    <% } %>
+  </header>
+
+  <% if (withFilters && model.filters) { %>
+    <%- include('discovery-toolbar', { model: model }) %>
+  <% } %>

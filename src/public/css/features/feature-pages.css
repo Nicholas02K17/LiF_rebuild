@@ -1,0 +1,466 @@
+/* ============================================================================
+   feature-pages.css — Gatherings, Groups, Connections, Calendar, Map,
+   Resources and Opportunities.
+
+   Same tokens, same motion vocabulary, same card language as the Hub. A Member
+   moving between them should feel they are in one connected Playground rather
+   than a set of unrelated apps (Dashboard Unified v1.2 §0.7).
+   ========================================================================== */
+
+.feature {
+  width: min(100% - 2 * var(--sp-5), var(--shell-max));
+  margin-inline: auto;
+  padding-block: var(--sp-6) var(--sp-8);
+  gap: var(--sp-6);
+}
+
+.feature__head { display: flex; flex-direction: column; gap: var(--sp-3); max-width: 62ch; }
+.feature__title { font-size: var(--fs-2xl); }
+
+/* ============================================================== the toolbar */
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper-raised) 72%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.toolbar__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+.toolbar__row--filters { justify-content: space-between; }
+
+.toolbar__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.toolbar__search svg {
+  position: absolute;
+  left: 14px;
+  width: 17px; height: 17px;
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+.toolbar__search input {
+  width: 100%;
+  font: inherit;
+  font-size: var(--fs-sm);
+  padding: var(--sp-3) var(--sp-4) var(--sp-3) 40px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+.toolbar__search input:focus-visible { border-color: var(--accent); }
+
+.scope--compact .scope__switch { border-color: var(--line-strong); }
+.scope--compact .scope__option { padding: var(--sp-2) var(--sp-3); font-size: var(--fs-xs); }
+.scope--compact .scope__option[aria-pressed='true'] {
+  background: var(--paper-raised);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-pill);
+}
+
+.chip-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.chip[aria-pressed='true'] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
+
+.chip--removable { text-decoration: none; }
+.chip__remove { font-weight: 700; opacity: 0.6; }
+.chip--removable:hover .chip__remove { opacity: 1; }
+
+.toolbar__applied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-top: var(--sp-3);
+  border-top: 1px dashed var(--line);
+  font-size: var(--fs-sm);
+}
+
+.toolbar__count { font-size: var(--fs-sm); color: var(--ink-muted); }
+
+/* The Aspect wheel again, at filter size. Colour belongs to the Aspects, so
+   filtering by Aspect looks like the Aspects (Brand Reference v1.1 §3). */
+.aspect-filter { display: flex; gap: var(--sp-2); align-items: center; }
+.aspect-filter__dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--aspect-600, var(--ink-faint));
+  transition: transform var(--dur-quick) var(--ease-bloom), background var(--dur-quick) ease;
+}
+.aspect-filter__dot:hover { transform: scale(1.22); background: var(--aspect-100); }
+.aspect-filter__dot[aria-pressed='true'] { background: var(--aspect-600); transform: scale(1.15); }
+
+/* =============================================================== offerings = */
+
+.offering-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(310px, 100%), 1fr));
+  gap: var(--sp-4);
+}
+
+.offering {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-5);
+  border-radius: var(--radius-lg);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform var(--dur-calm) var(--ease-out),
+              box-shadow var(--dur-calm) var(--ease-out),
+              border-color var(--dur-calm) ease;
+}
+.offering::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0; top: 0;
+  height: 3px;
+  background: var(--aspect-600, var(--accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-settle) var(--ease-out);
+}
+.offering:hover, .offering:focus-within {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--aspect-600, var(--accent)) 30%, var(--line));
+}
+.offering:hover::before, .offering:focus-within::before { transform: scaleX(1); }
+
+.offering__watermark {
+  position: absolute;
+  right: -52px; bottom: -58px;
+  width: 190px; height: 190px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-settle) var(--ease-out), transform var(--dur-bloom) var(--ease-out);
+}
+.offering__watermark circle { fill: none; stroke: var(--aspect-600, var(--accent)); stroke-width: 1.4; }
+.offering:hover .offering__watermark, .offering:focus-within .offering__watermark {
+  opacity: 0.1;
+  transform: rotate(20deg) scale(1.06);
+}
+
+.offering__head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+.offering__aspect {
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--aspect-600, var(--accent));
+}
+.offering__title { font-size: var(--fs-lg); font-family: var(--font-display); }
+.offering__title a { color: inherit; text-decoration: none; }
+.offering__title a:hover { text-decoration: underline; }
+.offering__host { font-size: var(--fs-sm); color: var(--ink-muted); }
+.offering__invitation { font-size: var(--fs-sm); line-height: var(--lh-body); }
+
+.offering__facts { display: flex; flex-direction: column; gap: 3px; margin-top: var(--sp-2); }
+.offering__facts > div { display: flex; gap: var(--sp-3); font-size: var(--fs-xs); }
+.offering__facts dt { flex: 0 0 5.5rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.07em; font-size: 0.64rem; padding-top: 1px; }
+.offering__facts dd { margin: 0; color: var(--ink-muted); }
+
+/* A truthful availability label, and its tone says the same thing the words do
+   (Events Human Mapping v1.0 §2). */
+.offering__availability {
+  align-self: flex-start;
+  margin-top: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+.offering__availability[data-tone='open']    { background: var(--nature-nurture-100); color: color-mix(in srgb, var(--nature-nurture-600) 82%, var(--ink)); }
+.offering__availability[data-tone='waiting'] { background: var(--community-inclusion-100); color: color-mix(in srgb, var(--community-inclusion-600) 82%, var(--ink)); }
+.offering__availability[data-tone='closed']  { background: color-mix(in srgb, var(--line) 55%, transparent); color: var(--ink-muted); }
+
+.offering__reason {
+  font-size: var(--fs-xs);
+  color: var(--ink-muted);
+  font-style: italic;
+  line-height: var(--lh-snug);
+}
+
+.offering__foot { margin-top: auto; padding-top: var(--sp-4); }
+
+/* ================================================================= detail == */
+
+.detail {
+  max-width: 68ch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-6);
+  border-radius: var(--radius-lg);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  border-top: 4px solid var(--aspect-600, var(--accent));
+}
+.detail__aspect { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--aspect-600, var(--accent)); }
+.detail__title { font-size: var(--fs-2xl); }
+.detail__invitation { font-size: 1.1rem; line-height: var(--lh-body); }
+.detail__host { color: var(--ink-muted); font-size: var(--fs-sm); }
+
+.detail__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--aspect-100, var(--accent-soft)) 32%, transparent);
+}
+.detail__facts > div { display: flex; flex-direction: column; gap: 2px; }
+.detail__facts dt { font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-faint); }
+.detail__facts dd { margin: 0; font-size: var(--fs-sm); }
+
+/* Consent and sharing sit before the action, never after it. */
+.consent {
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--line-strong);
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+}
+.consent h3 { font-size: var(--fs-md); }
+
+.detail__actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); padding-top: var(--sp-2); }
+
+/* An action that is deliberately not wired yet must not look like a live one. */
+[data-prototype-action] { cursor: not-allowed; opacity: 0.72; }
+
+/* ================================================================= people == */
+
+.people { display: flex; flex-direction: column; gap: var(--sp-3); }
+.person {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  transition: transform var(--dur-calm) var(--ease-out), border-color var(--dur-calm) ease;
+}
+.person:hover { transform: translateX(3px); border-color: color-mix(in srgb, var(--aspect-600, var(--accent)) 34%, var(--line)); }
+.person__initial {
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--aspect-600, var(--accent));
+  color: var(--aspect-600, var(--accent));
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.person__name { font-weight: 700; }
+.person__name a { color: inherit; text-decoration: none; }
+.person__name a:hover { text-decoration: underline; }
+.person__meta { font-size: var(--fs-xs); color: var(--ink-faint); }
+.person__shared { font-size: var(--fs-sm); color: var(--ink-muted); margin-top: 2px; }
+
+@media (max-width: 640px) {
+  .person { grid-template-columns: auto minmax(0, 1fr); }
+  .person > .btn { grid-column: 2; justify-self: start; }
+}
+
+/* =============================================================== calendar == */
+
+.calendar__nav { display: flex; gap: var(--sp-2); align-items: center; }
+.calendar__timezone { font-size: var(--fs-xs); max-width: 70ch; margin-top: calc(var(--sp-3) * -1); }
+
+/* Gentle current-day emphasis — a ring, not a block of colour (§4). */
+.calendar__cell.is-today {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.calendar__cell.is-today .calendar__day { color: var(--accent-strong); font-weight: 700; }
+
+.calendar-modes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+.calendar-modes__note { font-size: var(--fs-xs); margin-inline-start: var(--sp-2); }
+
+.calendar__weekdays,
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+.calendar__weekdays {
+  margin-bottom: var(--sp-2);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.calendar__cell {
+  min-height: 92px;
+  padding: var(--sp-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper-raised) 60%, transparent);
+  display: flex; flex-direction: column; gap: 3px;
+}
+.calendar__cell--blank { border: 0; background: transparent; min-height: 0; }
+.calendar__cell.has-events { background: var(--paper-raised); box-shadow: var(--shadow-sm); }
+.calendar__day { font-size: var(--fs-xs); color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+.calendar__event {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: inherit;
+  background: var(--aspect-100, var(--accent-soft));
+  border-left: 3px solid var(--aspect-600, var(--accent));
+  font-size: 0.7rem;
+  line-height: 1.25;
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.calendar__event:hover { transform: translateX(2px); }
+.calendar__event-time { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.calendar__event-title { font-weight: 700; }
+
+/* Registered and Interested must never look like the same thing (§3). */
+.calendar__badge {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--aspect-600, var(--accent));
+  color: var(--paper-raised);
+}
+.calendar__badge--soft {
+  background: transparent;
+  color: var(--aspect-600, var(--accent));
+  border: 1px solid currentColor;
+}
+
+.calendar__more { font-size: 0.64rem; color: var(--ink-muted); }
+
+@media (max-width: 760px) {
+  .calendar__weekdays { display: none; }
+  .calendar__grid { grid-template-columns: minmax(0, 1fr); }
+  .calendar__cell--blank { display: none; }
+  .calendar__cell { min-height: 0; flex-direction: row; align-items: center; flex-wrap: wrap; gap: var(--sp-2); }
+  .calendar__cell:not(.has-events) { display: none; }
+  .calendar__day::after { content: ' September'; }
+}
+
+/* ==================================================================== map == */
+
+.map-orientation { font-size: var(--fs-sm); color: var(--ink-muted); max-width: 64ch; }
+
+.map-frame {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  padding: var(--sp-4);
+  box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column; gap: var(--sp-3);
+}
+
+.map-frame__canvas {
+  width: 100%;
+  max-width: 940px;
+  margin-inline: auto;
+  height: auto;
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  overflow: visible;
+}
+
+.map-frame__water { fill: var(--engagement-communion-100); opacity: 0.55; }
+
+.map-frame__lattice circle {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 0.18;
+  opacity: 0.5;
+}
+
+.map-marker { cursor: pointer; }
+.map-marker__halo {
+  fill: var(--aspect-100, var(--accent-soft));
+  stroke: var(--aspect-600, var(--accent));
+  stroke-width: 0.3;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  /* lif-petal-tint settles at a tint; lif-petal-open would settle at full
+     opacity and every marker would sit inside a solid disc. */
+  animation: lif-petal-tint calc(var(--dur-settle) * var(--motion-scale)) var(--ease-bloom) both;
+  animation-delay: calc((120ms + var(--i, 0) * 45ms) * var(--motion-scale));
+  transition: opacity var(--dur-quick) ease;
+}
+.map-marker__core {
+  fill: var(--paper-raised);
+  stroke: var(--aspect-600, var(--accent));
+  stroke-width: 0.55;
+}
+.map-marker__letter {
+  font-family: var(--font-body);
+  font-size: 2px;
+  font-weight: 700;
+  fill: var(--aspect-600, var(--accent));
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.map-marker__badge {
+  font-family: var(--font-body);
+  font-size: 1.6px;
+  font-weight: 700;
+  fill: var(--ink-muted);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.map-marker__badge--new { fill: var(--source-resources-600); }
+
+.map-marker:hover .map-marker__halo,
+.map-marker:focus-visible .map-marker__halo { opacity: 0.85; }
+.map-marker:hover .map-marker__core { fill: var(--aspect-100, var(--accent-soft)); }
+
+.map-legend {
+  display: flex; flex-wrap: wrap; gap: var(--sp-4);
+  font-size: var(--fs-xs);
+  color: var(--ink-muted);
+}
+.map-legend li { display: flex; align-items: center; gap: var(--sp-2); }
+.map-legend__symbol {
+  width: 20px; height: 20px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  font-weight: 700;
+  font-size: 0.66rem;
+  color: var(--ink);
+}
+
+/* ================================================================= shared == */
+
+.online-panel {
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--line-strong);
+  background: color-mix(in srgb, var(--engagement-communion-100) 30%, transparent);
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+}
+
+.state--roomy { align-items: flex-start; padding: var(--sp-7) 0; gap: var(--sp-4); }
+.state--roomy .state__title { font-size: var(--fs-lg); font-family: var(--font-display); }

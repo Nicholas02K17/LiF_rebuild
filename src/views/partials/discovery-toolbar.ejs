@@ -1,0 +1,93 @@
+<%
+  /* Shared discovery controls: search, the scope lens, the Aspect wheel as a
+     filter, format, and a way out of every filter that is applied.
+
+     Shared Foundation v1.4 §8 and Groups Human Mapping v1.1 §3.2: "For me"
+     never blocks broader search, and a Member must always be able to leave a
+     filtered view. Every applied filter therefore carries its own remove
+     control, and Clear everything is always present when any is set.
+
+     Locals: model (needs .filters, .query, .total, .newCount, .page). */
+  var f = model.filters;
+  var q = model.query;
+%>
+<form class="toolbar lif-enter" style="--i: 3;" method="get" action="<%= model.page.path %>" role="search">
+  <div class="toolbar__row">
+    <label class="toolbar__search">
+      <span class="visually-hidden">Search <%= model.title %></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path>
+      </svg>
+      <input type="search" name="q" value="<%= q.search || '' %>"
+             placeholder="Search <%= model.title.toLowerCase() %>…">
+    </label>
+
+    <%
+      /* Carry the other filters through the form, so searching does not
+         silently discard what the Member already chose. */
+    %>
+    <% if (q.aspectKey) { %><input type="hidden" name="aspect" value="<%= q.aspectKey %>"><% } %>
+    <% if (q.format) { %><input type="hidden" name="format" value="<%= q.format %>"><% } %>
+    <% if (q.scope !== 'for-me') { %><input type="hidden" name="scope" value="<%= q.scope %>"><% } %>
+
+    <button type="submit" class="btn btn--primary">Search</button>
+
+    <div class="scope scope--compact">
+      <div class="scope__switch" role="group" aria-label="What this page is showing">
+        <a class="scope__option" href="<%= f.scopeHref('for-me') %>"
+           aria-pressed="<%= q.scope === 'for-me' %>">For me</a>
+        <a class="scope__option" href="<%= f.scopeHref('whole-playground') %>"
+           aria-pressed="<%= q.scope === 'whole-playground' %>">Whole Playground</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar__row toolbar__row--filters">
+    <%
+      /* The Aspect wheel again, small — colour is connected to the Aspects, so
+         filtering by Aspect uses the same shape it always does. */
+    %>
+    <div class="aspect-filter" role="group" aria-label="Filter by Aspect">
+      <% model.aspects.forEach(function (aspect) { %>
+        <a class="aspect-filter__dot"
+           href="<%= f.aspectHref(aspect.key) %>"
+           data-aspect="<%= aspect.key %>"
+           aria-pressed="<%= q.aspectKey === aspect.key %>"
+           title="<%= aspect.label %> (<%= aspect.code %>)">
+          <span class="visually-hidden"><%= aspect.label %></span>
+        </a>
+      <% }); %>
+    </div>
+
+    <div class="chip-row">
+      <a class="chip" href="<%= f.formatHref(null) %>" aria-pressed="<%= !q.format %>">Any way</a>
+      <a class="chip" href="<%= f.formatHref('in-person') %>" aria-pressed="<%= q.format === 'in-person' %>">In person</a>
+      <a class="chip" href="<%= f.formatHref('online') %>" aria-pressed="<%= q.format === 'online' %>">Online</a>
+      <a class="chip" href="<%= f.formatHref('hybrid') %>" aria-pressed="<%= q.format === 'hybrid' %>">Hybrid</a>
+    </div>
+  </div>
+
+  <% if (f.hasAny) { %>
+    <div class="toolbar__applied" role="status">
+      <span class="faint">Showing only:</span>
+      <% f.applied.forEach(function (filter) { %>
+        <a class="chip chip--removable" href="<%= filter.removeHref %>">
+          <%= filter.label %>
+          <span class="chip__remove" aria-hidden="true">×</span>
+          <span class="visually-hidden">— remove this filter</span>
+        </a>
+      <% }); %>
+      <a class="btn btn--quiet" href="<%= f.clearAllHref %>">Clear everything</a>
+    </div>
+  <% } %>
+
+  <p class="toolbar__count" aria-live="polite">
+    <% if (model.failure) { %>
+      &nbsp;
+    <% } else { %>
+      <strong><%= model.total %></strong>
+      <%= model.total === 1 ? 'result' : 'results' %> you can open<% if (model.newCount) { %>,
+      <strong><%= model.newCount %></strong> new since your last visit<% } %>.
+    <% } %>
+  </p>
+</form>

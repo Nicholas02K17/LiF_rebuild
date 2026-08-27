@@ -19,12 +19,6 @@ const { navigationFor } = require('../viewmodels/hub.viewModel');
 const router = express.Router();
 
 const DESTINATIONS = [
-  { path: '/gatherings', featureKey: 'events', title: 'Gatherings', owner: 'Events Unified Implementation Specification v1.0', aspectKey: 'service-offerings' },
-  { path: '/groups', featureKey: 'groups', title: 'Groups', owner: 'Groups Unified Implementation Specification v2.1', aspectKey: 'community-inclusion' },
-  { path: '/connections', featureKey: 'connections', title: 'Connections', owner: 'Dashboard Unified Implementation Specification v1.2 section 9', aspectKey: 'engagement-communion' },
-  { path: '/calendar', featureKey: 'calendar', title: 'Calendar', owner: 'Calendar Unified Implementation Specification v1.2', aspectKey: 'presence-being' },
-  { path: '/map', featureKey: 'map', title: 'Map', owner: 'Map Unified Implementation Specification v1.2', aspectKey: 'nature-nurture' },
-  { path: '/resources', featureKey: 'resources', title: 'Resources', owner: 'Shared Foundation v1.4 section 12', aspectKey: 'nature-nurture' },
   {
     // Explore the Playground lives permanently in the Resources Library and is
     // never a dead end, so it has its own route rather than folding into
@@ -35,7 +29,6 @@ const DESTINATIONS = [
     owner: 'Dashboard Unified Implementation Specification v1.2 section 19.7 — step-by-step tutorial cards',
     aspectKey: 'service-offerings'
   },
-  { path: '/opportunities', featureKey: 'opportunities', title: 'Opportunities to Engage', owner: 'Shared Foundation v1.4 section 6', aspectKey: 'source-resources' },
   { path: '/organizations', featureKey: 'organizations', title: 'Organizations', owner: 'Dashboard Unified Implementation Specification v1.2 section 12.1', aspectKey: 'presence-being' },
   { path: '/commons', featureKey: 'commons', title: 'Commons', owner: 'Dashboard Unified Implementation Specification v1.2 section 12.1 — detailed mapping pending', aspectKey: 'whole-human-potential' },
   { path: '/pathway/:component', featureKey: null, title: 'Welcome Home Pathway', owner: 'Dashboard Unified Implementation Specification v1.2 sections 6 to 11', aspectKey: 'whole-human-potential' },
@@ -50,11 +43,10 @@ const DESTINATIONS = [
    * Unified v1.2 section 0.11 on dead ends).
    */
   { path: '/connections/invitations/:id', featureKey: 'connections', title: 'Invitation to Connect', owner: 'Dashboard Unified Implementation Specification v1.2 sections 9 and 19.3', aspectKey: 'engagement-communion' },
-  { path: '/gatherings/:slug', featureKey: 'events', title: 'A Gathering', owner: 'Events Unified Implementation Specification v1.0', aspectKey: 'service-offerings' },
-  { path: '/groups/:slug', featureKey: 'groups', title: 'A Group', owner: 'Groups Unified Implementation Specification v2.1', aspectKey: 'community-inclusion' },
   { path: '/groups/:slug/:area', featureKey: 'groups', title: 'A Group Area', owner: 'Groups Unified Implementation Specification v2.1', aspectKey: 'community-inclusion' },
+  { path: '/resources/:slug', featureKey: 'resources', title: 'A Resource', owner: 'Shared Foundation v1.4 section 12', aspectKey: 'nature-nurture' },
   { path: '/opportunities/:slug', featureKey: 'opportunities', title: 'An Opportunity to Engage', owner: 'Shared Foundation v1.4 section 6', aspectKey: 'source-resources' },
-  { path: '/resources/:slug', featureKey: 'resources', title: 'A Resource', owner: 'Shared Foundation v1.4 section 12', aspectKey: 'nature-nurture' }
+  { path: '/sign-in', featureKey: null, title: 'Sign in', owner: 'Dashboard Unified Implementation Specification v1.2 section 5.3 — passwordless six-digit code', aspectKey: 'presence-being' }
 ];
 
 for (const destination of DESTINATIONS) {

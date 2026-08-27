@@ -71,6 +71,18 @@ const config = {
 
   locale: 'en',
 
+  /**
+   * Today, as the application sees it.
+   *
+   * Overridable so a test or a review deployment can pin a date and get a
+   * reproducible screenshot. It lives here rather than being read from the
+   * fixtures because `src/` must never import from `/dev` — the scan enforces
+   * that, and it caught this exact mistake.
+   */
+  today: (process.env.LIF_TODAY && /^\d{4}-\d{2}-\d{2}$/.test(process.env.LIF_TODAY))
+    ? process.env.LIF_TODAY
+    : new Date().toISOString().slice(0, 10),
+
   /** Motion budget. Individual durations live in CSS custom properties. */
   motion: {
     // The signature Seed of Life entrance runs once per session, not per page.

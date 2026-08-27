@@ -3,6 +3,7 @@
 const config = require('../config');
 const memberContract = require('./contracts/member.contract');
 const playgroundContract = require('./contracts/playground.contract');
+const discoveryContract = require('./contracts/discovery.contract');
 
 /**
  * Repository binding point.
@@ -27,6 +28,7 @@ function assertImplements(name, impl, contract) {
 function bind(repositories) {
   assertImplements('memberRepository', repositories.memberRepository, memberContract);
   assertImplements('playgroundRepository', repositories.playgroundRepository, playgroundContract);
+  assertImplements('discoveryRepository', repositories.discoveryRepository, discoveryContract);
   bound = repositories;
   return bound;
 }

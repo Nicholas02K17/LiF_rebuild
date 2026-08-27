@@ -83,6 +83,21 @@
          never overlap. */
     %>
     <g class="medallion__targets">
+      <%
+        /* The seal is not a pathway step, but it is one of six circles and
+           leaving it inert reads as broken rather than as meaningful. It opens
+           the pathway panel below, which is what it summarises. */
+      %>
+      <a href="#pathway-title"
+         class="medallion__target"
+         style="--seat-colour: <%= seatColour(pathway.seal.seat) %>; --seat-tint: <%= seatTint(pathway.seal.seat) %>;"
+         aria-label="<%= pathway.seal.closed ? 'Welcome Home — your pathway is complete. Open the pathway.' : 'The Welcome Home seal, which closes when your four steps are complete. Open the pathway.' %>">
+        <circle class="medallion__hit"
+                cx="<%= pathway.seal.geometry.x.toFixed(2) %>"
+                cy="<%= pathway.seal.geometry.y.toFixed(2) %>"
+                r="22" />
+      </a>
+
       <% pathway.components.forEach(function (component) { %>
         <a href="<%= component.href %>"
            class="medallion__target"

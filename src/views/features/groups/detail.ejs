@@ -1,0 +1,56 @@
+<%- include('../../partials/feature-shell-open', { model: model, showFilters: false }) %>
+
+<%
+  /* Groups Human Mapping v1.1 §4.2: full purpose, who it is for, present focus,
+     format, language, stewards, participation expectations, what access means
+     and what information a steward receives from a request — then one
+     context-appropriate primary action. */
+  var g = model.group;
+%>
+<article class="detail" data-aspect="<%= g.aspectKey %>">
+  <p class="detail__aspect lif-enter"><%= g.aspect.label %> · <%= g.formatLabel %></p>
+  <h2 class="detail__title lif-enter" style="--i: 1;"><%= g.name %></h2>
+  <p class="detail__invitation lif-enter" style="--i: 2;"><%= g.focus %></p>
+  <p class="detail__host lif-enter" style="--i: 3;"><%= g.description %></p>
+
+  <dl class="detail__facts lif-enter" style="--i: 4;">
+    <div><dt>Where</dt><dd><%= g.placeLabel %></dd></div>
+    <div><dt>In</dt><dd><%= g.language %></dd></div>
+    <div><dt>Right now</dt><dd><%= g.activityLabel %></dd></div>
+    <div><dt>Who is here</dt><dd><%= g.memberCountLabel %></dd></div>
+    <div><dt>Stewarded by</dt><dd><%= g.stewards %></dd></div>
+    <div><dt>Joining</dt><dd><%= g.accessLabel %></dd></div>
+  </dl>
+
+  <section class="consent lif-enter" style="--i: 5;" aria-labelledby="access-meaning">
+    <h3 id="access-meaning">What Request Access means here</h3>
+    <p>
+      A steward reads your request and chooses one of: welcome you in, ask for
+      more information, hold you on a waitlist, or decline. Whichever it is, you
+      get a reason and a next step — and any private note between stewards stays
+      between them.
+    </p>
+    <p>
+      They will see your Playground Name, your country, and anything you choose
+      to write in the request. Nothing else.
+    </p>
+    <% if (g.activity === 'quiet') { %>
+      <p class="faint">
+        This Group is quiet this season. Requests are still read, and it may be
+        a while before there is much happening.
+      </p>
+    <% } %>
+  </section>
+
+  <div class="detail__actions lif-enter" style="--i: 6;">
+    <% if (g.primaryAction) { %>
+      <span class="btn <%= g.primaryAction.tone === 'primary' ? 'btn--primary' : 'btn--quiet' %>"
+            data-prototype-action><%= g.primaryAction.label %></span>
+    <% } %>
+    <a class="btn btn--quiet" href="/groups">All Groups</a>
+  </div>
+
+  <p class="prototype__flag">Prototype — the request itself is Journey GR-J-003 and is not built here</p>
+</article>
+
+<%- include('../../partials/feature-shell-close', { model: model }) %>

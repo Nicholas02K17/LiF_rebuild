@@ -1,0 +1,95 @@
+<%- include('../../partials/feature-shell-open', { model: model }) %>
+
+<%
+  /* Calendar Human Mapping v1.2 §3 and §4: modes are Playground Calendar,
+     My Calendar and New, with the current selection obvious. Registered and
+     Interested stay distinct. Gentle date emphasis, spacious cells, no
+     enterprise grid. */
+%>
+<div class="calendar-modes lif-enter" style="--i: 4;" role="group" aria-label="Calendar mode">
+  <% model.modes.forEach(function (m) { %>
+    <a class="chip" href="<%= m.href %>" aria-pressed="<%= model.mode === m.key %>"><%= m.label %></a>
+  <% }); %>
+  <span class="faint calendar-modes__note">
+    <% if (model.mode === 'mine') { %>
+      What you registered for and what you saved — kept apart, never merged.
+    <% } else if (model.mode === 'new') { %>
+      Added since your last visit.
+    <% } else { %>
+      Everything you are permitted to see.
+    <% } %>
+  </span>
+</div>
+
+<%- include('../../partials/result-states', { model: model }) %>
+
+<section class="calendar lif-enter" style="--i: 5;" aria-labelledby="calendar-month">
+  <div class="section-heading">
+    <h2 id="calendar-month"><%= model.monthLabel %></h2>
+    <div class="calendar__nav">
+      <a class="btn btn--quiet" href="<%= model.prevHref %>" rel="prev">← Earlier</a>
+      <% if (!model.isCurrentMonth) { %>
+        <a class="btn btn--quiet" href="<%= model.todayHref %>">This month</a>
+      <% } %>
+      <a class="btn btn--quiet" href="<%= model.nextHref %>" rel="next">Later →</a>
+    </div>
+  </div>
+  <p class="faint calendar__timezone">
+    Times shown in Atlantic time, the timezone on your account.
+    <% if (model.outsideMonth) { %>
+      <%= model.outsideMonth %>
+      <%= model.outsideMonth === 1 ? 'other Gathering falls' : 'other Gatherings fall' %>
+      outside <%= model.monthLabel %> — move through the months to reach
+      <%= model.outsideMonth === 1 ? 'it' : 'them' %>.
+    <% } %>
+  </p>
+
+  <ol class="calendar__weekdays" aria-hidden="true">
+    <li>Mon</li><li>Tue</li><li>Wed</li><li>Thu</li><li>Fri</li><li>Sat</li><li>Sun</li>
+  </ol>
+
+  <ol class="calendar__grid">
+    <% model.cells.forEach(function (cell) { %>
+      <% if (cell.blank) { %>
+        <li class="calendar__cell calendar__cell--blank" aria-hidden="true"></li>
+      <% } else { %>
+        <li class="calendar__cell <%= cell.events.length ? 'has-events' : '' %> <%= cell.isToday ? 'is-today' : '' %>">
+          <span class="calendar__day"><%= cell.day %></span>
+          <% cell.shown.forEach(function (event) { %>
+            <a class="calendar__event" href="<%= event.href %>" data-aspect="<%= event.aspectKey %>"
+               data-state="<%= event.memberState %>">
+              <span class="calendar__event-time"><%= event.timeLabel.replace(' Atlantic', '') %></span>
+              <span class="calendar__event-title"><%= event.title %></span>
+              <% if (event.memberState === 'registered') { %>
+                <span class="calendar__badge">Registered</span>
+              <% } else if (event.memberState === 'bookmarked') { %>
+                <span class="calendar__badge calendar__badge--soft">Interested</span>
+              <% } %>
+            </a>
+          <% }); %>
+          <% if (cell.overflow) { %>
+            <span class="calendar__more"><%= cell.overflow %> more</span>
+          <% } %>
+        </li>
+      <% } %>
+    <% }); %>
+  </ol>
+</section>
+
+<section aria-labelledby="calendar-list">
+  <div class="section-heading">
+    <h2 id="calendar-list">As a list</h2>
+    <span class="faint">The same <%= model.monthLabel %> records, read in order</span>
+  </div>
+  <% if (model.scheduled.length) { %>
+    <ul class="offering-grid">
+      <% model.scheduled.forEach(function (item, index) { %>
+        <%- include('../../partials/offering-card', { item: item, index: index, kind: 'event' }) %>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p class="lede">Nothing scheduled in this view.</p>
+  <% } %>
+</section>
+
+<%- include('../../partials/feature-shell-close', { model: model }) %>

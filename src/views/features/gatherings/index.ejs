@@ -1,0 +1,26 @@
+<%- include('../../partials/feature-shell-open', { model: model }) %>
+
+<%- include('../../partials/result-states', { model: model }) %>
+
+<% if (model.items.length) { %>
+  <ul class="offering-grid">
+    <% model.items.forEach(function (item, index) { %>
+      <%- include('../../partials/offering-card', { item: item, index: index, kind: 'event' }) %>
+    <% }); %>
+  </ul>
+<% } %>
+
+<%
+  /* Online offerings are never forced into a physical filter, and they are
+     never invisible because a Member is filtering by place
+     (Events Human Mapping v1.0 §2). */
+%>
+<% if (model.onlineCount && model.query.format !== 'online') { %>
+  <p class="online-panel">
+    <strong><%= model.onlineCount %></strong>
+    of these happen online, so they belong to no particular place.
+    <a href="<%= model.filters.formatHref('online') %>">Show just those</a>
+  </p>
+<% } %>
+
+<%- include('../../partials/feature-shell-close', { model: model }) %>

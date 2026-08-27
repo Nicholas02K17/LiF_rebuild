@@ -1,0 +1,29 @@
+<%
+  /* The two ways a list can have nothing in it, told apart.
+
+     Dashboard Unified v1.2 §0.11: an empty result must distinguish "nothing
+     exists" from "nothing matches your filters", and a failure must say that
+     the Member's work is safe and offer a way on. Neither blames anyone.
+
+     Locals: model. */
+%>
+<% if (model.failure) { %>
+  <div class="state state--error" role="alert">
+    <p class="state__title"><%= model.failure.title %></p>
+    <p><%= model.failure.body %></p>
+    <p><a class="btn" href="<%= model.failure.action.href %>"><%= model.failure.action.label %></a></p>
+  </div>
+<% } else if (model.empty) { %>
+  <div class="state state--empty state--roomy">
+    <svg class="seed-mark state__mark" viewBox="0 0 200 200" fill="none" aria-hidden="true" width="64" height="64">
+      <% seed.forEach(function (s) { %>
+        <circle cx="<%= s.cx %>" cy="<%= s.cy %>" r="<%= s.r %>" stroke="<%= s.colour %>" stroke-width="3" />
+      <% }); %>
+    </svg>
+    <p class="state__title"><%= model.empty.title %></p>
+    <p><%= model.empty.body %></p>
+    <% if (model.empty.action) { %>
+      <p><a class="btn btn--primary" href="<%= model.empty.action.href %>"><%= model.empty.action.label %></a></p>
+    <% } %>
+  </div>
+<% } %>

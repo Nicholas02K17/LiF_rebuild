@@ -1,0 +1,51 @@
+<%- include('../../partials/feature-shell-open', { model: model, showFilters: false }) %>
+
+<%
+  /* Events Human Mapping v1.0 §3: the page answers what is offered, whether it
+     is for me, who is holding it, what taking part involves and what happens if
+     I register — warm invitation language before logistics, without hiding the
+     logistics. */
+  var e = model.event;
+%>
+<article class="detail" data-aspect="<%= e.aspectKey %>">
+  <p class="detail__aspect lif-enter"><%= e.aspect.label %> · <%= e.formatLabel %></p>
+  <h2 class="detail__title lif-enter" style="--i: 1;"><%= e.title %></h2>
+  <p class="detail__invitation lif-enter" style="--i: 2;"><%= e.invitation %></p>
+  <p class="detail__host lif-enter" style="--i: 3;"><%= e.hostLine %></p>
+
+  <dl class="detail__facts lif-enter" style="--i: 4;">
+    <div><dt>When</dt><dd><%= e.whenLabel %></dd></div>
+    <div><dt>Where</dt><dd><%= e.placeLabel %><% if (e.area) { %> · <%= e.area %><% } %></dd></div>
+    <div><dt>In</dt><dd><%= e.language %></dd></div>
+    <div><dt>Cost</dt><dd><%= e.costLabel %></dd></div>
+    <div><dt>Getting in</dt><dd><%= e.availabilityLabel %></dd></div>
+    <div><dt>Recording</dt><dd><%= e.recording ? 'This one is recorded.' : 'Not recorded.' %></dd></div>
+    <div><dt>Access</dt><dd><%= e.accessibility %></dd></div>
+  </dl>
+
+  <%
+    /* Before any commitment, say plainly what is shared and with whom
+       (Shared Foundation v1.4 §5, Events §4). */
+  %>
+  <section class="consent lif-enter" style="--i: 5;" aria-labelledby="sharing">
+    <h3 id="sharing">If you register</h3>
+    <p>
+      <%= e.host %> will see your Playground Name and the email on your account,
+      so they can send you what you need for the day. Nothing else on your
+      Personal Playground is shared.
+    </p>
+    <p class="faint">You can change your response at any time, from anywhere it appears.</p>
+  </section>
+
+  <div class="detail__actions lif-enter" style="--i: 6;">
+    <% if (e.primaryAction) { %>
+      <span class="btn <%= e.primaryAction.tone === 'primary' ? 'btn--primary' : 'btn--quiet' %>"
+            data-prototype-action><%= e.primaryAction.label %></span>
+    <% } %>
+    <a class="btn btn--quiet" href="/gatherings">All Gatherings</a>
+  </div>
+
+  <p class="prototype__flag">Prototype — registration itself is Journey EV-J-006 and is not built here</p>
+</article>
+
+<%- include('../../partials/feature-shell-close', { model: model }) %>

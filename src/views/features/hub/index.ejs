@@ -53,9 +53,12 @@
       <%- include('../../partials/pathway-medallion', { pathway: model.pathway, identity: model.identity }) %>
     </section>
 
-    <% if (!model.pathway.allCoreComplete || model.pathway.components.some(function (c) { return !c.complete; })) { %>
-      <%- include('../../partials/pathway', { pathway: model.pathway, identity: model.identity }) %>
-    <% } %>
+    <%
+      /* Always present. Completing the pathway should not make it disappear —
+         a Member can still revisit any component, and the medallion's seal
+         links here. */
+    %>
+    <%- include('../../partials/pathway', { pathway: model.pathway, identity: model.identity }) %>
 
     <%
       /* ---- 2. Meaningful current activity ------------------------------

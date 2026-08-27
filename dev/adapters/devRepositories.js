@@ -15,6 +15,7 @@
  */
 
 const seed = require('../seed/hub.dataset');
+const discoveryAdapter = require('./discoveryAdapter');
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -175,7 +176,22 @@ function create() {
     }
   };
 
-  return { memberRepository, playgroundRepository, setReviewState, DATASET_ID: seed.DATASET_ID };
+  const discoveryRepository = discoveryAdapter.create();
+
+  // One switch drives every adapter's review state, so `?state=` is consistent
+  // across the Hub and the feature pages rather than only affecting one of them.
+  function setReviewStateEverywhere(value) {
+    setReviewState(value);
+    discoveryRepository.setDiscoveryReviewState(value);
+  }
+
+  return {
+    memberRepository,
+    playgroundRepository,
+    discoveryRepository,
+    setReviewState: setReviewStateEverywhere,
+    DATASET_ID: seed.DATASET_ID
+  };
 }
 
 module.exports = { create };
