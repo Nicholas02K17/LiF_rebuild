@@ -24,15 +24,29 @@ function applyReviewState(req) {
   return requested;
 }
 
-function clearReviewState() {
-  if (config.isProduction && !config.reviewDeployment) return;
-  const bound = repositories.get();
-  if (typeof bound.setReviewState === 'function') bound.setReviewState(null);
+/**
+ * Only ever undo something that was actually done.
+ *
+ * This runs in a `finally`, which is the worst place to throw from: it fires
+ * after the response has already been decided, and the failure it raises
+ * replaces whatever the request was going to say. So it does nothing at all
+ * unless a review state was applied, and it swallows an adapter that has since
+ * become unavailable — by then the request already has its answer.
+ */
+function clearReviewState(applied) {
+  if (!applied) return;
+  try {
+    const bound = repositories.get();
+    if (typeof bound.setReviewState === 'function') bound.setReviewState(null);
+  } catch {
+    /* the adapter is gone; the response is already settled either way */
+  }
 }
 
 async function show(req, res, next) {
-  const reviewState = applyReviewState(req);
+  let reviewState = null;
   try {
+    reviewState = applyReviewState(req);
     const hub = await hubService.loadHub({
       memberId: req.viewer.memberId,
       isMember: Boolean(req.viewer.isMember),

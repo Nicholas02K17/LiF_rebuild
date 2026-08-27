@@ -23,6 +23,29 @@ let app = null;
 let bootError = null;
 
 try {
+  const config = require('../src/config');
+  const repositories = require('../src/repositories');
+
+  if (config.reviewDeployment) {
+    /**
+     * Bind the review fixtures here, from the deployment entry point, in the
+     * same shape the host application binds its real repositories.
+     *
+     * Two reasons this lives in `api/` rather than being left to the lazy
+     * require inside `src/repositories/index.js`:
+     *
+     * 1. It is a static, top-level require, so a bundler's file tracer can see
+     *    it. The lazy one is inside a function and behind a condition, which is
+     *    exactly the shape tracers drop — and a dropped module here is not a
+     *    500, it is the whole function crashing.
+     * 2. `src/` still cannot reach the fixtures on its own, which is the rule
+     *    that matters (AI Run Instructions v2.1 section 7). A review deployment
+     *    declares them from outside, exactly like production declares real ones.
+     */
+    const devAdapter = require('../dev/adapters/devRepositories');
+    repositories.bind(devAdapter.create());
+  }
+
   // Building the app at module load is what we want: a configuration mistake
   // should surface on the first request, not on the hundredth.
   app = require('../src/app').createApp();
@@ -45,7 +68,7 @@ function bootFailureHandler(req, res) {
   res.end(
     'The LiF Hub could not start.\n\n' +
       'This is a configuration problem rather than a fault in the page you asked for.\n' +
-      'The reason is in this deployment\'s function logs.\n\n' +
+      'The reason is in this deployment\'s function logs, and /api/health reports it too.\n\n' +
       'The usual cause: a deployment with no LiF backend behind it needs the\n' +
       'environment variable LIF_REVIEW_DEPLOYMENT set to true, and needs a\n' +
       'redeploy afterwards — environment changes do not reach a build that has\n' +

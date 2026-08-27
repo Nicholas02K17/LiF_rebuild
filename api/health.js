@@ -47,6 +47,8 @@ module.exports = function health(req, res) {
     dirname: __dirname,
     flags: {},
     files: {},
+    reviewAdapterResolves: null,
+    reviewAdapterError: null,
     appLoads: null,
     appError: null
   };
@@ -65,6 +67,16 @@ module.exports = function health(req, res) {
     }
   } catch (error) {
     report.files.error = String(error && error.message);
+  }
+
+  // Whether the module is genuinely resolvable in the bundle, which is a
+  // different question from whether a file exists next to this one.
+  try {
+    require.resolve('../dev/adapters/devRepositories');
+    report.reviewAdapterResolves = true;
+  } catch (error) {
+    report.reviewAdapterResolves = false;
+    report.reviewAdapterError = String(error && error.message);
   }
 
   // The question that matters: does the application itself load in here?
