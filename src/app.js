@@ -2,6 +2,7 @@
 
 const path = require('path');
 const express = require('express');
+const ejs = require('ejs');
 
 const config = require('./config');
 const layout = require('./middleware/layout');
@@ -22,6 +23,19 @@ const routes = require('./routes');
  */
 
 function mount(app) {
+  /**
+   * Register the view engine explicitly rather than leaving Express to find it.
+   *
+   * `app.set('view engine', 'ejs')` alone makes Express do `require(name)` with
+   * a variable at first render. A bundler's static file tracer cannot follow
+   * that, so ejs is simply not deployed and the first page render fails on a
+   * host that ships only what it traced — which is every serverless platform.
+   *
+   * Requiring it at the top of this file and handing Express the engine
+   * directly makes the dependency visible to the tracer. Behaviour is identical
+   * either way; only the packaging differs.
+   */
+  app.engine('ejs', ejs.__express);
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
 

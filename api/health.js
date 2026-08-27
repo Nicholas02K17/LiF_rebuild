@@ -39,6 +39,9 @@ const RUNTIME_FILES = [
   'node_modules/ejs/package.json'
 ];
 
+/** Modules that must be resolvable, not merely present on disk. */
+const RUNTIME_MODULES = ['express', 'ejs'];
+
 module.exports = function health(req, res) {
   const report = {
     functionRuns: true,
@@ -67,6 +70,16 @@ module.exports = function health(req, res) {
     }
   } catch (error) {
     report.files.error = String(error && error.message);
+  }
+
+  report.modules = {};
+  for (const name of RUNTIME_MODULES) {
+    try {
+      require.resolve(name);
+      report.modules[name] = true;
+    } catch {
+      report.modules[name] = false;
+    }
   }
 
   // Whether the module is genuinely resolvable in the bundle, which is a
