@@ -67,15 +67,22 @@
 
 .medallion__svg { width: 100%; height: 100%; overflow: visible; }
 
-.medallion__centre {
+/* The seventh circle — the one the other six are constructed from. */
+.medallion__core {
+  fill: none;
+  stroke: var(--whole-human-potential-600);
+  stroke-width: 2;
+  opacity: 0.42;
+}
+
+.medallion__initial-disc {
   fill: var(--paper-raised);
-  stroke: var(--line-strong);
-  stroke-width: 1.5;
+  opacity: 0.82;
 }
 
 .medallion__initial {
   font-family: var(--font-display);
-  font-size: 26px;
+  font-size: 21px;
   font-weight: 600;
   fill: var(--accent);
   text-anchor: middle;
@@ -121,17 +128,27 @@
 
 /* The seal. Closed only when the four core components are complete, and when it
    closes it does so once, quietly. */
+/* The seal wears its own Aspect colour like every other seat.
+   Brand Reference v1.1 section 3: where the logo or the Aspects are
+   represented, their assigned colours are used — so the pattern still reads as
+   the Seed of Life rather than as a themed widget. Completion is shown by
+   weight and opacity, not by recolouring a circle. */
 .medallion__seal {
   fill: none;
-  stroke: var(--accent);
-  stroke-width: 2.6;
+  stroke: var(--seat-colour, var(--source-resources-600));
+  stroke-width: 2;
+  opacity: 0.42;
   stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  opacity: 0.35;
+  stroke-dashoffset: 0;
   transform-origin: center;
   transform-box: fill-box;
 }
+
+/* Only once the four core steps are done does it draw itself and hold. */
 .medallion__seal--closed {
+  stroke-width: 2.8;
+  opacity: 1;
+  stroke-dashoffset: 1;
   animation: lif-seal calc(1500ms * var(--motion-scale)) var(--ease-bloom) both;
   animation-delay: calc(1100ms * var(--motion-scale));
 }

@@ -67,7 +67,10 @@ async function show(req, res, next) {
   } catch (error) {
     next(error);
   } finally {
-    clearReviewState();
+    // Pass what was actually applied. Without it the guard inside sees
+    // undefined, returns early, and the review state leaks into every
+    // subsequent request on this instance.
+    clearReviewState(reviewState);
   }
 }
 

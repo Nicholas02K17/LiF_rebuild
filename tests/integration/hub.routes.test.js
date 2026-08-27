@@ -147,3 +147,23 @@ test('no template leaks an unresolved terminology key', async () => {
   const page = await get('/');
   assert.doesNotMatch(page.body, /\[missing: /, 'every member-facing string resolved');
 });
+
+test('a review state never leaks into the next request', async () => {
+  // `?state=` is a per-request lens. Visiting one must not leave the Hub stuck
+  // in it — a reviewer who looks at the empty state once should not find every
+  // later page empty.
+  const before = await get('/');
+  assert.match(before.body, /2 of 4 steps complete/, 'the populated Hub to start with');
+
+  const empty = await get('/?state=empty');
+  assert.match(empty.body, /0 of 4 steps complete/, 'the empty state applies');
+
+  const after = await get('/');
+  assert.match(after.body, /2 of 4 steps complete/, 'and the next plain request is populated again');
+
+  for (const state of ['dense', 'restricted', 'error', 'loading']) {
+    await get(`/?state=${state}`);
+    const plain = await get('/');
+    assert.match(plain.body, /2 of 4 steps complete/, `${state} did not leak`);
+  }
+});

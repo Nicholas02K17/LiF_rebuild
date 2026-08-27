@@ -45,7 +45,7 @@
       </g>
     <% }); %>
 
-    <g style="--seat: <%= pathway.seal.seat %>; --seat-colour: var(--accent);">
+    <g style="--seat: <%= pathway.seal.seat %>; --seat-colour: <%= seatColour(pathway.seal.seat) %>;">
       <circle class="medallion__seal <%= pathway.seal.closed ? 'medallion__seal--closed' : '' %>"
               cx="<%= pathway.seal.geometry.x.toFixed(2) %>"
               cy="<%= pathway.seal.geometry.y.toFixed(2) %>"
@@ -53,7 +53,25 @@
               pathLength="1" />
     </g>
 
-    <circle class="medallion__centre" cx="<%= pathway.centre.x %>" cy="<%= pathway.centre.y %>" r="26" />
+    <%
+      /* The seventh circle.
+         The Seed of Life is six circles around a centre one, all the same
+         radius — the centre is not decoration, it is the circle the other six
+         are constructed from. Drawing only the outer six leaves a Venn diagram.
+         It carries the Whole Human Potential colour because that is the Aspect
+         the centre holds. */
+    %>
+    <circle class="medallion__core"
+            cx="<%= pathway.centre.x %>"
+            cy="<%= pathway.centre.y %>"
+            r="<%= pathway.centre.r %>" />
+
+    <%
+      /* The Member sits at the middle. Kept small on purpose: the rosette where
+         all seven circles meet is the most legible part of the pattern, and a
+         wide disc would cover exactly that. */
+    %>
+    <circle class="medallion__initial-disc" cx="<%= pathway.centre.x %>" cy="<%= pathway.centre.y %>" r="16" />
     <text class="medallion__initial" x="<%= pathway.centre.x %>" y="<%= pathway.centre.y %>"><%= identity.initial %></text>
 
   </svg>
