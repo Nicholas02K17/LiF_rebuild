@@ -73,6 +73,59 @@ module.exports = async function diag(req, res) {
       }
     }
 
+    // Probe the pieces the Hub route uses and nothing else does, since that
+    // route is the only one failing.
+    report.stage = 'probing repositories';
+    try {
+      const bound = repositories.get();
+      report.repositories = {
+        resolved: true,
+        hasMember: typeof bound.memberRepository === 'object',
+        hasPlayground: typeof bound.playgroundRepository === 'object'
+      };
+    } catch (error) {
+      report.repositories = { resolved: false, error: String(error && error.message) };
+    }
+
+    report.stage = 'probing loadHub';
+    try {
+      const hubService = require('../src/services/hub.service');
+      const hub = await hubService.loadHub({ memberId: 'mem_dev_0001', isMember: true });
+      report.loadHub = { ok: true, summaries: hub.summaries.length, activity: hub.activity.length };
+    } catch (error) {
+      report.loadHub = {
+        ok: false,
+        error: String(error && error.message),
+        stack: String(error && error.stack).split('\n').slice(0, 6)
+      };
+    }
+
+    // The decisive test: drive the exact handler api/index.js exports, in its
+    // own module state, the way the platform drives it.
+    report.stage = 'probing the exported handler';
+    try {
+      const exported = require('./index.js');
+      report.exportedHandler = { type: typeof exported, isExpress: typeof exported === 'function' && typeof exported.handle === 'function' };
+
+      const probeServer = http.createServer(exported);
+      await new Promise((resolve, reject) => {
+        probeServer.once('error', reject);
+        probeServer.listen(0, '127.0.0.1', resolve);
+      });
+      const probeBase = 'http://127.0.0.1:' + probeServer.address().port;
+      try {
+        const response = await fetch(probeBase + '/');
+        const body = await response.text();
+        report.exportedHandler.homeStatus = response.status;
+        report.exportedHandler.homePreview = body.slice(0, 300);
+      } catch (error) {
+        report.exportedHandler.fetchError = String(error && error.message);
+      }
+      probeServer.close();
+    } catch (error) {
+      report.exportedHandler = { error: String(error && error.message) };
+    }
+
     report.stage = 'done';
   } catch (error) {
     report.stage = 'threw during ' + report.stage;
